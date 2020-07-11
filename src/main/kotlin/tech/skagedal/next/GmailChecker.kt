@@ -12,6 +12,7 @@ import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.gmail.Gmail
 import com.google.api.services.gmail.GmailScopes
 import com.google.api.services.gmail.model.ListMessagesResponse
+import com.google.api.services.gmail.model.ListThreadsResponse
 import java.nio.file.FileSystem
 import java.nio.file.Files
 
@@ -33,31 +34,26 @@ class GmailChecker(
 
         val response = service
             .users()
-            .messages()
+            .threads()
             .list("me")
+            .setQ("in:inbox")
             .execute()
-        if (response.messages.isEmpty()) {
+        if (response.threads.isEmpty()) {
             println("Inbox is empty!")
         } else {
             println("Inbox is not empty (${response.resultSizeEstimate} messages).  Opening Gmail.")
+            println("(To trouble shoot this, run next with NEXT_DEBUG_GMAIL=TRUE in the environment.)")
             if (System.getenv("NEXT_DEBUG_GMAIL") == "TRUE") {
-                printAllMessages(response, service)
+                printAllMessages(response)
             }
             processRunner.openUrl("https://gmail.com")
         }
     }
 
-    private fun printAllMessages(
-        response: ListMessagesResponse,
-        service: Gmail
-    ) {
-        for (m in response.messages) {
-            val message = service
-                .users()
-                .messages()
-                .get("me", m.id)
-                .execute()
-            println(message.payload.headers.groupBy { it.name }["Subject"])
+    private fun printAllMessages(response: ListThreadsResponse) {
+        for (m in response.threads) {
+            println("id: ${m.id}")
+            println(" - ${m.snippet}")
         }
     }
 
