@@ -1,4 +1,4 @@
-package tech.skagedal.next
+package tech.skagedal.next.tasks
 
 import com.google.api.client.auth.oauth2.Credential
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp
@@ -12,6 +12,9 @@ import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.gmail.Gmail
 import com.google.api.services.gmail.GmailScopes
 import com.google.api.services.gmail.model.ListThreadsResponse
+import tech.skagedal.next.ProcessRunner
+import tech.skagedal.next.nextDataDirectory
+import tech.skagedal.next.nextDirectory
 import java.nio.file.FileSystem
 import java.nio.file.Files
 

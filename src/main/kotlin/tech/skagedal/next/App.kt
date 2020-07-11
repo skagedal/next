@@ -7,6 +7,9 @@ import com.google.api.client.json.jackson2.JacksonFactory
 import tech.skagedal.next.configuration.ConfigurationLoader
 import tech.skagedal.next.configuration.Task
 import tech.skagedal.next.configuration.TasksFile
+import tech.skagedal.next.tasks.FileSystemLinter
+import tech.skagedal.next.tasks.GmailChecker
+import tech.skagedal.next.tasks.IntervalTaskRunner
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Files

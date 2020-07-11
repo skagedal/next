@@ -1,5 +1,7 @@
-package tech.skagedal.next
+package tech.skagedal.next.tasks
 
+import tech.skagedal.next.ProcessRunner
+import tech.skagedal.next.TaskRecords
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
