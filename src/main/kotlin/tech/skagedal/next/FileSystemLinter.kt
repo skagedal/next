@@ -1,5 +1,6 @@
 package tech.skagedal.next
 
+import java.io.File
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
@@ -15,21 +16,25 @@ class FileSystemLinter(
     // Rule: We should not have non-hidden, non-directory files laying around in the home directory.
 
     private fun checkCleanHome() {
-        val files = uncleanFilesInHome()
+        checkCleanDirectory(fileSystem.home(), "the home directory")
+    }
+
+    private fun checkCleanDirectory(path: Path, placeDescriptionDefiniteArticle: String) {
+        val files = uncleanFilesInPath(path)
         if (files.isNotEmpty()) {
-            println("You have files laying around in the home directory.  Remove them, then exit subshell.")
+            println("You have files laying around in $placeDescriptionDefiniteArticle.  Remove them, then exit subshell.")
             for (file in files) {
                 println(file)
             }
-            shellStarter.start()
+            shellStarter.start(path)
         } else {
             println("All is well!")
         }
     }
 
-    private fun uncleanFilesInHome(): List<Path> =
+    private fun uncleanFilesInPath(path: Path): List<Path> =
         Files
-            .newDirectoryStream(fileSystem.home()).use { stream ->
+            .newDirectoryStream(path).use { stream ->
                 stream.filter { Files.isRegularFile(it) && !Files.isHidden(it) }
             }
 }
