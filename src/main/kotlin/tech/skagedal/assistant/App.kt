@@ -55,6 +55,7 @@ class App(
                 Task.BrewUpgradeTask -> listOf(intervalTaskFactory.brewUpgradeTask())
                 Task.FileSystemLintTask -> fileSystemLinterTaskFactory.standardTasks()
                 is Task.GmailTask -> listOf(gmailCheckerTaskFactory.task(task.account))
+                is Task.GitReposTask -> TODO()
             }
         }
     }
