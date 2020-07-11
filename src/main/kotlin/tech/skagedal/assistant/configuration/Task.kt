@@ -11,13 +11,17 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 @JsonSubTypes(
     JsonSubTypes.Type(value = Task.BrewUpgradeTask::class, name = "brew-upgrade"),
     JsonSubTypes.Type(value = Task.FileSystemLintTask::class, name = "file-system-lint"),
-    JsonSubTypes.Type(value = Task.GmailTask::class, name = "gmail")
+    JsonSubTypes.Type(value = Task.GmailTask::class, name = "gmail"),
+    JsonSubTypes.Type(value = Task.GitReposTask::class, name = "git-repos")
 )
 sealed class Task {
     object BrewUpgradeTask : Task()
     object FileSystemLintTask : Task()
     data class GmailTask(
         val account: String
+    ) : Task()
+    data class GitReposTask(
+        val directory: String
     ) : Task()
 }
 
