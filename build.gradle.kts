@@ -19,6 +19,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.11.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.11.0")
+    implementation("com.github.ajalt:clikt:2.4.0")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
@@ -26,7 +27,7 @@ dependencies {
 }
 
 application {
-    mainClassName = "tech.skagedal.assistant.AppKt"
+    mainClassName = "tech.skagedal.assistant.MainKt"
 }
 
 tasks {
