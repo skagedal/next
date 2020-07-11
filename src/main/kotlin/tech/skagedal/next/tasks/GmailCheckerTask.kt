@@ -13,6 +13,8 @@ import com.google.api.services.gmail.Gmail
 import com.google.api.services.gmail.GmailScopes
 import com.google.api.services.gmail.model.ListThreadsResponse
 import tech.skagedal.next.ProcessRunner
+import tech.skagedal.next.RunnableTask
+import tech.skagedal.next.TaskResult
 import tech.skagedal.next.nextDataDirectory
 import tech.skagedal.next.nextDirectory
 import java.nio.file.FileSystem
@@ -21,13 +23,13 @@ import java.nio.file.Files
 private const val CREDENTIALS_FILENAME = "google-oauth-credentials.json"
 private const val TOKENS_DIRECTORY_PATHNAME = "tokens"
 
-class GmailChecker(
+class GmailCheckerTask(
     val fileSystem: FileSystem,
     val processRunner: ProcessRunner,
-    val jacksonFactory: JacksonFactory
-) {
-
-    fun run(account: String) {
+    val jacksonFactory: JacksonFactory,
+    val account: String
+) : RunnableTask {
+    override fun run(): TaskResult {
         println("Checking account $account...")
         val transport = GoogleNetHttpTransport.newTrustedTransport()
         val service = Gmail.Builder(transport, jacksonFactory, getCredentials(transport, account))
@@ -40,8 +42,10 @@ class GmailChecker(
             .list("me")
             .setQ("in:inbox")
             .execute()
+
         if (response.threads.isEmpty()) {
             println("Inbox is empty!")
+            return TaskResult.Proceed
         } else {
             println("Inbox is not empty (${response.resultSizeEstimate} messages).  Opening Gmail.")
             println("(To trouble shoot this, run next with NEXT_DEBUG_GMAIL=TRUE in the environment.)")
@@ -49,6 +53,7 @@ class GmailChecker(
                 printAllMessages(response)
             }
             processRunner.openUrl("https://mail.google.com/mail/u/$account")
+            return TaskResult.ActionRequired
         }
     }
 

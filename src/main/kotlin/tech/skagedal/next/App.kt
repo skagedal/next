@@ -7,9 +7,9 @@ import com.google.api.client.json.jackson2.JacksonFactory
 import tech.skagedal.next.configuration.ConfigurationLoader
 import tech.skagedal.next.configuration.Task
 import tech.skagedal.next.configuration.TasksFile
-import tech.skagedal.next.tasks.FileSystemLinter
-import tech.skagedal.next.tasks.GmailChecker
-import tech.skagedal.next.tasks.IntervalTaskRunner
+import tech.skagedal.next.tasks.FileSystemLinterTaskFactory
+import tech.skagedal.next.tasks.GmailCheckerTaskFactory
+import tech.skagedal.next.tasks.IntervalTaskFactory
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Files
@@ -17,16 +17,27 @@ import java.nio.file.Files
 class App(
     val fileSystem: FileSystem,
     val configurationLoader: ConfigurationLoader,
-    val fileSystemLinter: FileSystemLinter,
-    val intervalTaskRunner: IntervalTaskRunner,
-    val gmailChecker: GmailChecker
+    val fileSystemLinterTaskFactory: FileSystemLinterTaskFactory,
+    val intervalTaskFactory: IntervalTaskFactory,
+    val gmailCheckerTaskFactory: GmailCheckerTaskFactory
 ) {
     fun run() {
-        for (task in readTasks().tasks) {
+        for (task in runnableTasks(readTasks().tasks)) {
+            when (task.run()) {
+                TaskResult.Proceed -> {
+                }
+                TaskResult.ActionRequired -> return
+                is TaskResult.ShellActionRequired -> return
+            }
+        }
+    }
+
+    fun runnableTasks(tasks: List<Task>): List<RunnableTask> {
+        return tasks.flatMap { task ->
             when (task) {
-                Task.BrewUpgradeTask -> intervalTaskRunner.run()
-                Task.FileSystemLintTask -> fileSystemLinter.run()
-                is Task.GmailTask -> gmailChecker.run(task.account)
+                Task.BrewUpgradeTask -> listOf(intervalTaskFactory.brewUpgradeTask())
+                Task.FileSystemLintTask -> fileSystemLinterTaskFactory.standardTasks()
+                is Task.GmailTask -> listOf(gmailCheckerTaskFactory.task(task.account))
             }
         }
     }
@@ -43,15 +54,15 @@ fun main(args: Array<String>) {
     val fileSystem = FileSystems.getDefault()
     val taskRecords = TaskRecords(fileSystem)
 
-    val fileSystemLinter = FileSystemLinter(
+    val fileSystemLinter = FileSystemLinterTaskFactory(
         fileSystem,
         processRunner
     )
-    val intervalTaskRunner = IntervalTaskRunner(
+    val intervalTaskRunner = IntervalTaskFactory(
         processRunner,
         taskRecords
     )
-    val gmailChecker = GmailChecker(
+    val gmailChecker = GmailCheckerTaskFactory(
         fileSystem,
         processRunner,
         JacksonFactory.getDefaultInstance()
