@@ -10,32 +10,55 @@ class FileSystemLinter(
 ) {
     fun run() {
         checkCleanHome()
+        checkCleanDesktop()
     }
 
     // Rule: We should not have non-hidden, non-directory files laying around in the home directory.
 
     private fun checkCleanHome() {
-        checkCleanDirectory(fileSystem.home(), "the home directory")
+        checkCleanDirectory(fileSystem.home(), "in your home directory") {
+            Files.isRegularFile(it) && !Files.isHidden(it)
+        }
     }
 
-    private fun checkCleanDirectory(path: Path, placeDescriptionDefiniteArticle: String) {
-        val files = uncleanFilesInPath(path)
+    // Rule: We should not have files laying around on the Desktop.  The .DS_Store file is ok.
+
+    private fun checkCleanDesktop() {
+        checkCleanDirectory(fileSystem.desktop(), "on the Desktop") {
+            Files.isRegularFile(it) && !it.fileName.toString().equals(".DS_Store", true)
+        }
+    }
+
+    // Common stuff
+
+    private fun checkCleanDirectory(
+        path: Path,
+        atThePlaceString: String,
+        pathFilter: (Path) -> Boolean
+    ) {
+        val files = uncleanFilesInPath(path, pathFilter)
+
         if (files.isNotEmpty()) {
-            println("You have files laying around in $placeDescriptionDefiniteArticle.  Remove them, then exit subshell.")
+            println("You have files laying around $atThePlaceString.  Remove them, then exit subshell.")
             for (file in files) {
                 println(file)
             }
             shellStarter.start(path)
         } else {
-            println("All is well!")
+            println("No files laying around $atThePlaceString.")
         }
     }
 
-    private fun uncleanFilesInPath(path: Path): List<Path> =
+    private fun uncleanFilesInPath(path: Path, pathFilter: (Path) -> Boolean): List<Path> =
         Files
             .newDirectoryStream(path).use { stream ->
-                stream.filter { Files.isRegularFile(it) && !Files.isHidden(it) }
+                stream.filter(pathFilter)
             }
+
+    private fun homeRules(path: Path): Boolean {
+        return Files.isRegularFile(path) && !Files.isHidden(path)
+    }
 }
 
 fun FileSystem.home() = getPath(System.getProperty("user.home"))
+fun FileSystem.desktop() = home().resolve("Desktop")
