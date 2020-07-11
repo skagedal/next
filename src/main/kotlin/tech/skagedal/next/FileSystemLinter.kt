@@ -6,7 +6,7 @@ import java.nio.file.Path
 
 class FileSystemLinter(
     val fileSystem: FileSystem,
-    val shellStarter: ShellStarter
+    val processRunner: ProcessRunner
 ) {
     fun run() {
         checkCleanHome()
@@ -43,7 +43,7 @@ class FileSystemLinter(
             for (file in files) {
                 println(file)
             }
-            shellStarter.start(path)
+            processRunner.runInteractiveShell(path)
         } else {
             println("No files laying around $atThePlaceString.")
         }
