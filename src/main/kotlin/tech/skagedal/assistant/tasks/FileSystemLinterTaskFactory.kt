@@ -4,6 +4,7 @@ import tech.skagedal.assistant.ProcessRunner
 import tech.skagedal.assistant.RunnableTask
 import tech.skagedal.assistant.desktop
 import tech.skagedal.assistant.home
+import tech.skagedal.assistant.isGloballyIgnored
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
@@ -31,8 +32,8 @@ class FileSystemLinterTaskFactory(
     )
 
     private fun homeRules(path: Path) =
-        Files.isRegularFile(path) && !Files.isHidden(path)
+        Files.isRegularFile(path) && !path.isGloballyIgnored() && !Files.isHidden(path)
 
     private fun desktopRules(path: Path) =
-        Files.isRegularFile(path) && !path.fileName.toString().equals(".DS_Store", true)
+        Files.isRegularFile(path) && !path.isGloballyIgnored()
 }

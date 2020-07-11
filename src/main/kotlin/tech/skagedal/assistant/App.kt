@@ -8,6 +8,7 @@ import tech.skagedal.assistant.configuration.ConfigurationLoader
 import tech.skagedal.assistant.configuration.Task
 import tech.skagedal.assistant.configuration.TasksFile
 import tech.skagedal.assistant.tasks.FileSystemLinterTaskFactory
+import tech.skagedal.assistant.tasks.GitReposTaskFactory
 import tech.skagedal.assistant.tasks.GmailCheckerTaskFactory
 import tech.skagedal.assistant.tasks.IntervalTaskFactory
 import java.nio.file.FileSystem
@@ -25,7 +26,8 @@ class App(
     val configurationLoader: ConfigurationLoader,
     val fileSystemLinterTaskFactory: FileSystemLinterTaskFactory,
     val intervalTaskFactory: IntervalTaskFactory,
-    val gmailCheckerTaskFactory: GmailCheckerTaskFactory
+    val gmailCheckerTaskFactory: GmailCheckerTaskFactory,
+    val gitReposTaskFactory: GitReposTaskFactory
 ) {
     fun run(): Int {
         val pass = {}
@@ -55,7 +57,7 @@ class App(
                 Task.BrewUpgradeTask -> listOf(intervalTaskFactory.brewUpgradeTask())
                 Task.FileSystemLintTask -> fileSystemLinterTaskFactory.standardTasks()
                 is Task.GmailTask -> listOf(gmailCheckerTaskFactory.task(task.account))
-                is Task.GitReposTask -> TODO()
+                is Task.GitReposTask -> listOf(gitReposTaskFactory.task(task.directory))
             }
         }
     }
@@ -86,7 +88,19 @@ fun main(args: Array<String>) {
         processRunner,
         JacksonFactory.getDefaultInstance()
     )
-    val app = App(fileSystem, repository, configurationLoader, fileSystemLinter, intervalTaskRunner, gmailChecker)
+    val gitReposTaskFactory = GitReposTaskFactory(
+        fileSystem
+    )
+
+    val app = App(
+        fileSystem,
+        repository,
+        configurationLoader,
+        fileSystemLinter,
+        intervalTaskRunner,
+        gmailChecker,
+        gitReposTaskFactory
+    )
 
     val status = app.run()
     exitProcess(status)
