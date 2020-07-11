@@ -1,8 +1,8 @@
-package tech.skagedal.next.tasks
+package tech.skagedal.assistant.tasks
 
-import tech.skagedal.next.RunnableTask
-import tech.skagedal.next.TaskRecords
-import tech.skagedal.next.TaskResult
+import tech.skagedal.assistant.RunnableTask
+import tech.skagedal.assistant.TaskRecords
+import tech.skagedal.assistant.TaskResult
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit

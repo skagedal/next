@@ -1,4 +1,4 @@
-package tech.skagedal.next
+package tech.skagedal.assistant
 
 import java.nio.file.Path
 

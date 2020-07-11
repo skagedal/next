@@ -5,4 +5,4 @@ set -e
 BIN=${HOME}/local/bin
 
 ./gradlew install
-ln -fs `pwd`/build/install/next/bin/next ${BIN}/next
+ln -fs `pwd`/build/install/simons-assistant/bin/simons-assistant ${BIN}/simons-assistant

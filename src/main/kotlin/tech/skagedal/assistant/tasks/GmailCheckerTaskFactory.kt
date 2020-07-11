@@ -1,8 +1,8 @@
-package tech.skagedal.next.tasks
+package tech.skagedal.assistant.tasks
 
 import com.google.api.client.json.jackson2.JacksonFactory
-import tech.skagedal.next.ProcessRunner
-import tech.skagedal.next.RunnableTask
+import tech.skagedal.assistant.ProcessRunner
+import tech.skagedal.assistant.RunnableTask
 import java.nio.file.FileSystem
 
 class GmailCheckerTaskFactory(

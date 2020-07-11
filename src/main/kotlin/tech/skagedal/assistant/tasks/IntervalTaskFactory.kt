@@ -1,11 +1,8 @@
-package tech.skagedal.next.tasks
+package tech.skagedal.assistant.tasks
 
-import tech.skagedal.next.ProcessRunner
-import tech.skagedal.next.RunnableTask
-import tech.skagedal.next.TaskRecords
-import java.time.LocalDateTime
-import java.time.ZoneOffset
-import java.time.temporal.ChronoUnit
+import tech.skagedal.assistant.ProcessRunner
+import tech.skagedal.assistant.RunnableTask
+import tech.skagedal.assistant.TaskRecords
 
 class IntervalTaskFactory(
     val processRunner: ProcessRunner,

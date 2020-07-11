@@ -1,4 +1,4 @@
-package tech.skagedal.next.configuration
+package tech.skagedal.assistant.configuration
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

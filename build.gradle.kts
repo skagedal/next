@@ -26,7 +26,7 @@ dependencies {
 }
 
 application {
-    mainClassName = "tech.skagedal.next.AppKt"
+    mainClassName = "tech.skagedal.assistant.AppKt"
 }
 
 tasks {

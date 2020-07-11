@@ -1,7 +1,7 @@
-package tech.skagedal.next.tasks
+package tech.skagedal.assistant.tasks
 
-import tech.skagedal.next.RunnableTask
-import tech.skagedal.next.TaskResult
+import tech.skagedal.assistant.RunnableTask
+import tech.skagedal.assistant.TaskResult
 import java.nio.file.Files
 import java.nio.file.Path
 

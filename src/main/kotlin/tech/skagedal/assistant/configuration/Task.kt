@@ -1,4 +1,4 @@
-package tech.skagedal.next.configuration
+package tech.skagedal.assistant.configuration
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo

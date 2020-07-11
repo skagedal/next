@@ -1,4 +1,4 @@
-package tech.skagedal.next
+package tech.skagedal.assistant
 
 interface RunnableTask {
     fun run(): TaskResult

@@ -1,9 +1,9 @@
-package tech.skagedal.next.tasks
+package tech.skagedal.assistant.tasks
 
-import tech.skagedal.next.ProcessRunner
-import tech.skagedal.next.RunnableTask
-import tech.skagedal.next.desktop
-import tech.skagedal.next.home
+import tech.skagedal.assistant.ProcessRunner
+import tech.skagedal.assistant.RunnableTask
+import tech.skagedal.assistant.desktop
+import tech.skagedal.assistant.home
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path

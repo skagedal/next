@@ -1,6 +1,5 @@
-package tech.skagedal.next
+package tech.skagedal.assistant
 
-import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.FileAlreadyExistsException
 import java.nio.file.FileSystem
@@ -34,5 +33,5 @@ class TaskRecords(
         Files.setLastModifiedTime(path, FileTime.from(Instant.now()))
     }
 
-    private fun pathForTask(task: String) = fileSystem.nextDataDirectory().resolve("$task.task")
+    private fun pathForTask(task: String) = fileSystem.assistantDataDirectory().resolve("$task.task")
 }
