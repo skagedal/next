@@ -5,7 +5,8 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 class FileSystemLinter(
-    val fileSystem: FileSystem
+    val fileSystem: FileSystem,
+    val shellStarter: ShellStarter
 ) {
     fun run() {
         checkCleanHome()
@@ -16,7 +17,11 @@ class FileSystemLinter(
     private fun checkCleanHome() {
         val files = uncleanFilesInHome()
         if (files.isNotEmpty()) {
-            println("You have files laying around in the home directory.  Remove them.")
+            println("You have files laying around in the home directory.  Remove them, then exit subshell.")
+            for (file in files) {
+                println(file)
+            }
+            shellStarter.start()
         } else {
             println("All is well!")
         }

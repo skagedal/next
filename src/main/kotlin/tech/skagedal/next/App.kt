@@ -14,7 +14,10 @@ class App(
 }
 
 fun main(args: Array<String>) {
-    val fileSystemLinter = FileSystemLinter(FileSystems.getDefault())
+    val fileSystemLinter = FileSystemLinter(
+        FileSystems.getDefault(),
+        ShellStarter()
+    )
     val app = App(fileSystemLinter)
 
     app.run()
