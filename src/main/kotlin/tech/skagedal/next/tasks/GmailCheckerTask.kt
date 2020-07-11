@@ -43,7 +43,7 @@ class GmailCheckerTask(
             .setQ("in:inbox")
             .execute()
 
-        if (response.threads.isEmpty()) {
+        if (response.resultSizeEstimate == 0L) {
             println("Inbox is empty!")
             return TaskResult.Proceed
         } else {
