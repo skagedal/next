@@ -18,12 +18,15 @@ class App(
 fun main(args: Array<String>) {
     val processRunner = ProcessRunner()
     val fileSystem = FileSystems.getDefault()
+    val taskRecords = TaskRecords(fileSystem)
+
     val fileSystemLinter = FileSystemLinter(
         fileSystem,
         processRunner
     )
     val intervalTaskRunner = IntervalTaskRunner(
-        processRunner
+        processRunner,
+        taskRecords
     )
     val app = App(fileSystemLinter, intervalTaskRunner)
 

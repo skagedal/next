@@ -12,7 +12,9 @@ class ProcessRunner {
     }
 
     fun runBrewUpgrade() {
-        ProcessBuilder("brew", "upgrade")
+        val command = listOf("brew", "upgrade")
+        printCommand(command)
+        ProcessBuilder(command)
             .inheritIO()
             .start()
             .waitFor()

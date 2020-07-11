@@ -59,6 +59,3 @@ class FileSystemLinter(
         return Files.isRegularFile(path) && !Files.isHidden(path)
     }
 }
-
-fun FileSystem.home() = getPath(System.getProperty("user.home"))
-fun FileSystem.desktop() = home().resolve("Desktop")
