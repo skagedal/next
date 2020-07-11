@@ -3,15 +3,18 @@
  */
 package tech.skagedal.next
 
+import com.google.api.client.json.jackson2.JacksonFactory
 import java.nio.file.FileSystems
 
 class App(
     val fileSystemLinter: FileSystemLinter,
-    val intervalTaskRunner: IntervalTaskRunner
+    val intervalTaskRunner: IntervalTaskRunner,
+    val gmailChecker: GmailChecker
 ) {
     fun run() {
         fileSystemLinter.run()
         intervalTaskRunner.run()
+        gmailChecker.run()
     }
 }
 
@@ -28,7 +31,12 @@ fun main(args: Array<String>) {
         processRunner,
         taskRecords
     )
-    val app = App(fileSystemLinter, intervalTaskRunner)
+    val gmailChecker = GmailChecker(
+        fileSystem,
+        processRunner,
+        JacksonFactory.getDefaultInstance()
+    )
+    val app = App(fileSystemLinter, intervalTaskRunner, gmailChecker)
 
     app.run()
 }

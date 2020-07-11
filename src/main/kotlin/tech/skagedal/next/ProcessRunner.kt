@@ -4,17 +4,21 @@ import java.nio.file.Path
 
 class ProcessRunner {
     fun runInteractiveShell(directory: Path) {
-        ProcessBuilder("zsh")
-            .directory(directory.toFile())
-            .inheritIO()
-            .start()
-            .waitFor()
+        runCommand(listOf("zsh"), directory)
     }
 
     fun runBrewUpgrade() {
-        val command = listOf("brew", "upgrade")
+        runCommand(listOf("brew", "upgrade"))
+    }
+
+    fun openUrl(url: String) {
+        runCommand(listOf("open", url))
+    }
+
+    private fun runCommand(command: List<String>, directory: Path? = null) {
         printCommand(command)
         ProcessBuilder(command)
+            .apply { if (directory != null) directory(directory.toFile()) }
             .inheritIO()
             .start()
             .waitFor()
