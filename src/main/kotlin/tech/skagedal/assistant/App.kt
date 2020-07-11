@@ -13,23 +13,33 @@ import tech.skagedal.assistant.tasks.IntervalTaskFactory
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Files
+import kotlin.system.exitProcess
+
+private const val EXIT_NORMAL = 0
+private const val CHANGE_DIRECTORY = 10
 
 class App(
     val fileSystem: FileSystem,
+    val repository: Repository,
     val configurationLoader: ConfigurationLoader,
     val fileSystemLinterTaskFactory: FileSystemLinterTaskFactory,
     val intervalTaskFactory: IntervalTaskFactory,
     val gmailCheckerTaskFactory: GmailCheckerTaskFactory
 ) {
-    fun run() {
+    fun run(): Int {
+        val pass = {}
         for (task in runnableTasks(readTasks().tasks)) {
-            when (task.run()) {
-                TaskResult.Proceed -> {
+            val result = task.run()
+            when (result) {
+                TaskResult.Proceed -> pass()
+                TaskResult.ActionRequired -> return EXIT_NORMAL
+                is TaskResult.ShellActionRequired -> {
+                    repository.setRequestedDirectory(result.directory)
+                    return CHANGE_DIRECTORY
                 }
-                TaskResult.ActionRequired -> return
-                is TaskResult.ShellActionRequired -> return
             }
         }
+        return EXIT_NORMAL
     }
 
     fun runnableTasks(tasks: List<Task>): List<RunnableTask> {
@@ -52,7 +62,8 @@ class App(
 fun main(args: Array<String>) {
     val processRunner = ProcessRunner()
     val fileSystem = FileSystems.getDefault()
-    val taskRecords = TaskRecords(fileSystem)
+    val repository = Repository(fileSystem)
+    val configurationLoader = ConfigurationLoader()
 
     val fileSystemLinter = FileSystemLinterTaskFactory(
         fileSystem,
@@ -60,14 +71,15 @@ fun main(args: Array<String>) {
     )
     val intervalTaskRunner = IntervalTaskFactory(
         processRunner,
-        taskRecords
+        repository
     )
     val gmailChecker = GmailCheckerTaskFactory(
         fileSystem,
         processRunner,
         JacksonFactory.getDefaultInstance()
     )
-    val app = App(fileSystem, ConfigurationLoader(), fileSystemLinter, intervalTaskRunner, gmailChecker)
+    val app = App(fileSystem, repository, configurationLoader, fileSystemLinter, intervalTaskRunner, gmailChecker)
 
-    app.run()
+    val status = app.run()
+    exitProcess(status)
 }

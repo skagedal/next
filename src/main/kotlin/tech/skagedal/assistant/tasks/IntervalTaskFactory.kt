@@ -2,15 +2,15 @@ package tech.skagedal.assistant.tasks
 
 import tech.skagedal.assistant.ProcessRunner
 import tech.skagedal.assistant.RunnableTask
-import tech.skagedal.assistant.TaskRecords
+import tech.skagedal.assistant.Repository
 
 class IntervalTaskFactory(
     val processRunner: ProcessRunner,
-    val taskRecords: TaskRecords
+    val repository: Repository
 ) {
     fun brewUpgradeTask(): RunnableTask {
         return IntervalTask(
-            taskRecords,
+            repository,
             "brew-upgrade",
             ::doBrewUpgrade
         )

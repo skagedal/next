@@ -1,14 +1,14 @@
 package tech.skagedal.assistant.tasks
 
 import tech.skagedal.assistant.RunnableTask
-import tech.skagedal.assistant.TaskRecords
+import tech.skagedal.assistant.Repository
 import tech.skagedal.assistant.TaskResult
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
 class IntervalTask(
-    val taskRecords: TaskRecords,
+    val repository: Repository,
     val taskIdentifier: String,
     val doTheTask: () -> Unit
 ) : RunnableTask {
@@ -17,11 +17,11 @@ class IntervalTask(
         if (daysAgo == null) {
             println("We have never done $taskIdentifier, so let's do it now.")
             doTheTask()
-            taskRecords.weJustDid(taskIdentifier)
+            repository.weJustDid(taskIdentifier)
         } else if (daysAgo > 7) {
             println("It was more than seven days since we did $taskIdentifier, so let's do it now.")
             doTheTask()
-            taskRecords.weJustDid(taskIdentifier)
+            repository.weJustDid(taskIdentifier)
         } else {
             println("It was just $daysAgo days since we did $taskIdentifier, so let's not do it again.")
         }
@@ -30,7 +30,7 @@ class IntervalTask(
     }
 
     private fun daysSinceWeLastDid(task: String): Long? =
-        taskRecords.whenDidWeLastDo(task)?.let {
+        repository.whenDidWeLastDo(task)?.let {
             LocalDateTime.ofInstant(it, ZoneOffset.UTC).until(LocalDateTime.now(), ChronoUnit.DAYS)
         }
 
