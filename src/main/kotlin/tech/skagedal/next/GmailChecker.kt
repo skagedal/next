@@ -46,6 +46,7 @@ class GmailChecker(
             if (System.getenv("NEXT_DEBUG_GMAIL") == "TRUE") {
                 printAllMessages(response)
             }
+            // TODO: Should make this open https://mail.google.com/mail/u/foo@gmail.com
             processRunner.openUrl("https://gmail.com")
         }
     }
