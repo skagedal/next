@@ -16,6 +16,7 @@ import java.nio.file.Files
 import kotlin.system.exitProcess
 
 private const val EXIT_NORMAL = 0
+private const val EXIT_ERROR = 1
 private const val CHANGE_DIRECTORY = 10
 
 class App(
@@ -28,7 +29,13 @@ class App(
 ) {
     fun run(): Int {
         val pass = {}
-        for (task in runnableTasks(readTasks().tasks)) {
+        val tasks = try {
+            readTasks().tasks
+        } catch (exception: ConfigurationLoader.BadConfigurationFormat) {
+            System.err.println(exception.message)
+            return 1
+        }
+        for (task in runnableTasks(tasks)) {
             val result = task.run()
             when (result) {
                 TaskResult.Proceed -> pass()
