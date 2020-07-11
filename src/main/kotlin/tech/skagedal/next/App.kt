@@ -3,13 +3,19 @@
  */
 package tech.skagedal.next
 
-class App {
-    val greeting: String
-        get() {
-            return "Hello world."
-        }
+import java.nio.file.FileSystems
+
+class App(
+    val fileSystemLinter: FileSystemLinter
+) {
+    fun run() {
+        fileSystemLinter.run()
+    }
 }
 
 fun main(args: Array<String>) {
-    println(App().greeting)
+    val fileSystemLinter = FileSystemLinter(FileSystems.getDefault())
+    val app = App(fileSystemLinter)
+
+    app.run()
 }
