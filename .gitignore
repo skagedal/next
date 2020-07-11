@@ -7,3 +7,4 @@ build
 # IntelliJ 
 out
 .idea
+stale_outputs_checked
