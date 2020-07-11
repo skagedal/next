@@ -11,7 +11,6 @@ import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.gmail.Gmail
 import com.google.api.services.gmail.GmailScopes
-import com.google.api.services.gmail.model.ListMessagesResponse
 import com.google.api.services.gmail.model.ListThreadsResponse
 import java.nio.file.FileSystem
 import java.nio.file.Files
@@ -25,10 +24,10 @@ class GmailChecker(
     val jacksonFactory: JacksonFactory
 ) {
 
-    fun run() {
-        println("Checking inbox...")
+    fun run(account: String) {
+        println("Checking account $account...")
         val transport = GoogleNetHttpTransport.newTrustedTransport()
-        val service = Gmail.Builder(transport, jacksonFactory, getCredentials(transport))
+        val service = Gmail.Builder(transport, jacksonFactory, getCredentials(transport, account))
             .setApplicationName("Next Assistant")
             .build()
 
@@ -46,8 +45,7 @@ class GmailChecker(
             if (System.getenv("NEXT_DEBUG_GMAIL") == "TRUE") {
                 printAllMessages(response)
             }
-            // TODO: Should make this open https://mail.google.com/mail/u/foo@gmail.com
-            processRunner.openUrl("https://gmail.com")
+            processRunner.openUrl("https://mail.google.com/mail/u/$account")
         }
     }
 
@@ -58,7 +56,7 @@ class GmailChecker(
         }
     }
 
-    private fun getCredentials(transport: NetHttpTransport): Credential {
+    private fun getCredentials(transport: NetHttpTransport, account: String): Credential {
         val credentialsPath = fileSystem.nextDirectory().resolve(CREDENTIALS_FILENAME)
         val tokensDirectoryPath = fileSystem.nextDataDirectory().resolve(TOKENS_DIRECTORY_PATHNAME)
         val clientSecrets = Files.newBufferedReader(credentialsPath).use { reader ->
@@ -71,7 +69,9 @@ class GmailChecker(
             .setDataStoreFactory(FileDataStoreFactory(tokensDirectoryPath.toFile()))
             .setAccessType("offline")
             .build()
+        // It would be great if we could make it open up the Google login screen with the right account pre-selected,
+        // but I can't figure out how to do that.
         val receiver = LocalServerReceiver.Builder().setPort(8888).build()
-        return AuthorizationCodeInstalledApp(flow, receiver).authorize("user")
+        return AuthorizationCodeInstalledApp(flow, receiver).authorize(account)
     }
 }

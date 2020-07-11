@@ -7,4 +7,5 @@ fun FileSystem.home() = getPath(System.getProperty("user.home"))
 fun FileSystem.desktop() = home().resolve("Desktop")
 
 fun FileSystem.nextDirectory() = home().resolve(".next-assistant")
+fun FileSystem.tasksYmlFile() = nextDirectory().resolve("tasks.yml")
 fun FileSystem.nextDataDirectory() = nextDirectory().resolve("data")

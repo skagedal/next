@@ -4,17 +4,34 @@
 package tech.skagedal.next
 
 import com.google.api.client.json.jackson2.JacksonFactory
+import tech.skagedal.next.configuration.ConfigurationLoader
+import tech.skagedal.next.configuration.Task
+import tech.skagedal.next.configuration.TasksFile
+import java.nio.file.FileSystem
 import java.nio.file.FileSystems
+import java.nio.file.Files
 
 class App(
+    val fileSystem: FileSystem,
+    val configurationLoader: ConfigurationLoader,
     val fileSystemLinter: FileSystemLinter,
     val intervalTaskRunner: IntervalTaskRunner,
     val gmailChecker: GmailChecker
 ) {
     fun run() {
-        fileSystemLinter.run()
-        intervalTaskRunner.run()
-        gmailChecker.run()
+        for (task in readTasks().tasks) {
+            when (task) {
+                Task.BrewUpgradeTask -> intervalTaskRunner.run()
+                Task.FileSystemLintTask -> fileSystemLinter.run()
+                is Task.GmailTask -> gmailChecker.run(task.account)
+            }
+        }
+    }
+
+    private fun readTasks(): TasksFile {
+        return Files.newBufferedReader(fileSystem.tasksYmlFile()).use { reader ->
+            configurationLoader.loadTasks(reader)
+        }
     }
 }
 
@@ -36,7 +53,7 @@ fun main(args: Array<String>) {
         processRunner,
         JacksonFactory.getDefaultInstance()
     )
-    val app = App(fileSystemLinter, intervalTaskRunner, gmailChecker)
+    val app = App(fileSystem, ConfigurationLoader(), fileSystemLinter, intervalTaskRunner, gmailChecker)
 
     app.run()
 }
