@@ -6,11 +6,12 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatterBuilder
-import java.time.format.ResolverStyle
 import java.time.format.TextStyle
 import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 import java.util.Locale
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 class Serializer {
     private val formatter = DateTimeFormatterBuilder()
@@ -33,10 +34,6 @@ class Serializer {
         }
     }
 
-    fun parseDocument(reader: Reader): Document {
-        return Document(listOf())
-    }
-
     private fun headerDateFormat(date: LocalDate): String {
         val weekDay = date.dayOfWeek.getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH).toLowerCase()
         val isoDate = date.format(DateTimeFormatter.ISO_LOCAL_DATE)
@@ -45,4 +42,73 @@ class Serializer {
 
     private fun formatTime(time: LocalTime) =
         time.truncatedTo(ChronoUnit.MINUTES).format(formatter)
+
+    // Parser
+
+    private val commentPattern = Pattern.compile("^# (?<text>.*)$")
+    private val dayHeaderPattern = Pattern.compile("^\\[[a-z]+\\s+(?<year>[0-9]{4})-(?<month>[0-9]{2})-(?<day>[0-9]{2})]$")
+    private val openShiftPattern = Pattern.compile("^\\* (?<hour>[0-9]{2}):(?<minute>[0-9]{2})-$")
+    private val closedShiftPattern =
+        Pattern.compile("^\\* (?<startHour>[0-9]{2}):(?<startMinute>[0-9]{2})-(?<stopHour>[0-9]{2}):(?<stopMinute>[0-9]{2})$")
+    private val specialShiftPattern =
+        Pattern.compile("^\\* (?<text>[A-Za-z]+) (?<startHour>[0-9]{2}):(?<startMinute>[0-9]{2})-(?<stopHour>[0-9]{2}):(?<stopMinute>[0-9]{2})$")
+    private val specialDayPattern = Pattern.compile("^\\* (?<text>[A-Za-z]+)$")
+    private val blankPattern = Pattern.compile("^\\s*$")
+
+    fun parseDocument(reader: Reader) = Document(reader.readLines().mapIndexed(this::parseLine))
+
+    private fun parseLine(lineNumber: Int, string: String): Line =
+        parseComment(string)
+            ?: parseDayHeader(string)
+            ?: parseOpenShift(string)
+            ?: parseClosedShift(string)
+            ?: parseSpecialShift(string)
+            ?: parseSpecialDay(string)
+            ?: parseBlank(string)
+            ?: throw ParseException(lineNumber + 1, string)
+
+    class ParseException(lineNumber: Int, string: String) : RuntimeException("Couldn't parse line $lineNumber:\n$string")
+
+    private fun parseComment(string: String): Line? =
+        commentPattern.matcherIfMatches(string)?.let {
+            Line.Comment(it.group("text"))
+        }
+
+    private fun parseDayHeader(string: String): Line? =
+        dayHeaderPattern.matcherIfMatches(string)?.let {
+            Line.DayHeader(LocalDate.of(it.group("year").toInt(), it.group("month").toInt(), it.group("day").toInt()))
+        }
+
+    private fun parseOpenShift(string: String): Line? =
+        openShiftPattern.matcherIfMatches(string)?.let {
+            Line.OpenShift(LocalTime.of(it.group("hour").toInt(), it.group("minute").toInt()))
+        }
+
+    private fun parseClosedShift(string: String): Line? =
+        closedShiftPattern.matcherIfMatches(string)?.let {
+            Line.ClosedShift(
+                LocalTime.of(it.group("startHour").toInt(), it.group("startMinute").toInt()),
+                LocalTime.of(it.group("stopHour").toInt(), it.group("stopMinute").toInt())
+            )
+        }
+
+    private fun parseSpecialShift(string: String): Line? =
+        specialShiftPattern.matcherIfMatches(string)?.let {
+            Line.SpecialShift(
+                it.group("text"),
+                LocalTime.of(it.group("startHour").toInt(), it.group("startMinute").toInt()),
+                LocalTime.of(it.group("stopHour").toInt(), it.group("stopMinute").toInt())
+            )
+        }
+
+    private fun parseSpecialDay(string: String): Line? =
+        specialDayPattern.matcherIfMatches(string)?.let {
+            Line.SpecialDay(it.group("text"))
+        }
+
+    private fun parseBlank(string: String): Line? =
+        blankPattern.matcherIfMatches(string)?.let { Line.Blank }
+
+    private fun Pattern.matcherIfMatches(string: String): Matcher? =
+        matcher(string).let { if (it.matches()) it else null }
 }

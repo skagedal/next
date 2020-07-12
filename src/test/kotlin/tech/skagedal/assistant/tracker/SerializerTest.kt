@@ -2,6 +2,7 @@ package tech.skagedal.assistant.tracker
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.io.StringReader
 import java.io.StringWriter
 import java.nio.file.FileSystems
 import java.time.LocalDate
@@ -77,8 +78,12 @@ internal class SerializerTest {
             )
         )
         assertEquals(serializedForm, serializer.documentToString(document))
+        assertEquals(document, serializer.parseDocument(serializedForm))
     }
 
     fun Serializer.documentToString(document: Document) =
-        StringWriter().apply { writeDocument(document, this) }.toString()
+        StringWriter().use { writeDocument(document, it); it }.toString()
+
+    fun Serializer.parseDocument(string: String): Document =
+        StringReader(string).use { parseDocument(it) }
 }
