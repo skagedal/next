@@ -25,14 +25,16 @@ data class Document(
 )
 
 class Repository(
-    val fileSystem: FileSystem
+    val fileSystem: FileSystem,
+    val serializer: Serializer
 ) {
     private val formatter = DateTimeFormatter.ofPattern("Y-'W'ww")
 
     fun weekTrackerFileCreateIfNeeded(date: LocalDate): Path {
         val path = pathForWeekTrackerFile(date)
+        Files.createDirectories(path.parent)
         Files.newBufferedWriter(path, StandardOpenOption.CREATE_NEW).use { writer ->
-            writer.write("")
+            serializer.writeDocument(defaultDocument(date), writer)
         }
         return path
     }

@@ -27,4 +27,13 @@ class ProcessRunner {
     private fun printCommand(command: List<String>) {
         println(command.joinToString(" "))
     }
+
+    fun runEditor(path: Path) {
+        runCommand(
+            listOf(
+                System.getenv("EDITOR"),
+                path.toString()
+            )
+        )
+    }
 }

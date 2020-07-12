@@ -11,7 +11,7 @@ import java.time.LocalTime
 internal class SerializerTest {
     @Test
     internal fun `serialize some simple documents`() {
-        val repository = Repository(FileSystems.getDefault())
+        val repository = createRepository()
         val serializer = Serializer()
         assertEquals(
             """
@@ -86,4 +86,6 @@ internal class SerializerTest {
 
     fun Serializer.parseDocument(string: String): Document =
         StringReader(string).use { parseDocument(it) }
+
+    private fun createRepository() = Repository(FileSystems.getDefault(), Serializer())
 }

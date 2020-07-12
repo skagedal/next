@@ -22,7 +22,7 @@ internal class RepositoryTest {
 
     @Test
     internal fun `test file name formatting`() {
-        val repository = Repository(FileSystems.getDefault())
+        val repository = createRepository()
 
         val p = repository.pathForWeekTrackerFile(LocalDate.of(2020, 7, 11))
         assertEquals("/home/the-user/.simons-assistant/data/tracker/2020-W28.txt", p.toString())
@@ -30,7 +30,7 @@ internal class RepositoryTest {
 
     @Test
     internal fun `week numbers are padded with zeros`() {
-        val repository = Repository(FileSystems.getDefault())
+        val repository = createRepository()
 
         val p = repository.pathForWeekTrackerFile(LocalDate.of(2020, 1, 4))
         assertEquals("/home/the-user/.simons-assistant/data/tracker/2020-W01.txt", p.toString())
@@ -38,7 +38,7 @@ internal class RepositoryTest {
 
     @Test
     internal fun `week-based year is used`() {
-        val repository = Repository(FileSystems.getDefault())
+        val repository = createRepository()
 
         val p = repository.pathForWeekTrackerFile(LocalDate.of(2019, 12, 30))
         assertEquals("/home/the-user/.simons-assistant/data/tracker/2020-W01.txt", p.toString())
@@ -46,8 +46,10 @@ internal class RepositoryTest {
 
     @Test
     internal fun `create a default document`() {
-        val repository = Repository(FileSystems.getDefault())
+        val repository = createRepository()
         val x = repository.defaultDocument(LocalDate.of(2020, 7, 11))
         assertEquals(null, x)
     }
+
+    private fun createRepository() = Repository(FileSystems.getDefault(), Serializer())
 }
