@@ -1,6 +1,7 @@
 package tech.skagedal.assistant.tracker
 
 import tech.skagedal.assistant.assistantDataDirectory
+import java.nio.file.FileAlreadyExistsException
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
@@ -33,8 +34,12 @@ class Repository(
     fun weekTrackerFileCreateIfNeeded(date: LocalDate): Path {
         val path = pathForWeekTrackerFile(date)
         Files.createDirectories(path.parent)
-        Files.newBufferedWriter(path, StandardOpenOption.CREATE_NEW).use { writer ->
-            serializer.writeDocument(defaultDocument(date), writer)
+        try {
+            Files.newBufferedWriter(path, StandardOpenOption.CREATE_NEW).use { writer ->
+                serializer.writeDocument(defaultDocument(date), writer)
+            }
+        } catch (e: FileAlreadyExistsException) {
+            // Ignored, expected
         }
         return path
     }
