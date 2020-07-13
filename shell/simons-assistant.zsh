@@ -5,3 +5,8 @@ function next () {
     cd "$(< ~/.simons-assistant/data/requested-directory)"
   fi
 }
+
+function work () {
+    date +%H:%M | pbcopy
+    simons-assistant track-edit
+}
