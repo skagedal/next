@@ -21,8 +21,14 @@ sealed class Line {
     object Blank : Line()
 }
 
-data class Document(
+data class Day(
+    val date: LocalDate,
     val lines: List<Line>
+)
+
+data class Document(
+    val preamble: List<Line>,
+    val days: List<Day>
 )
 
 class Repository(
@@ -48,12 +54,14 @@ class Repository(
         fileSystem.assistantDataDirectory().resolve("tracker").resolve(date.format(formatter) + ".txt")
 
     fun defaultDocument(date: LocalDate): Document {
-        val lines = (1..5).flatMap { dayNumber ->
-            listOf(
-                Line.DayHeader(date.with(WeekFields.ISO.dayOfWeek(), dayNumber.toLong())),
-                Line.Blank
+        val days = (1..5).map { dayNumber ->
+            Day(
+                date.with(WeekFields.ISO.dayOfWeek(), dayNumber.toLong()),
+                listOf(
+                    Line.Blank
+                )
             )
         }
-        return Document(lines)
+        return Document(emptyList(), days)
     }
 }

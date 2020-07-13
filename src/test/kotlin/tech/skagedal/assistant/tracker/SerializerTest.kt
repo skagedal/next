@@ -56,25 +56,46 @@ internal class SerializerTest {
             
         """.trimIndent()
         val document = Document(
+            emptyList(),
             listOf(
-                Line.DayHeader(LocalDate.of(2020, 7, 13)),
-                Line.SpecialDay("Vacation"),
-                Line.Comment("Came back from Jämtland"),
-                Line.Blank,
-                Line.DayHeader(LocalDate.of(2020, 7, 14)),
-                Line.ClosedShift(LocalTime.of(8, 32), LocalTime.of(12, 2)),
-                Line.ClosedShift(LocalTime.of(12, 30), LocalTime.of(13, 1)),
-                Line.ClosedShift(LocalTime.of(13, 45), LocalTime.of(18, 3)),
-                Line.Blank,
-                Line.DayHeader(LocalDate.of(2020, 7, 15)),
-                Line.ClosedShift(LocalTime.of(11, 0), LocalTime.of(18, 0)),
-                Line.Blank,
-                Line.DayHeader(LocalDate.of(2020, 7, 16)),
-                Line.ClosedShift(LocalTime.of(8, 0), LocalTime.of(12, 0)),
-                Line.SpecialShift("VAB", LocalTime.of(13, 0), LocalTime.of(17, 0)),
-                Line.Blank,
-                Line.DayHeader(LocalDate.of(2020, 7, 17)),
-                Line.OpenShift(LocalTime.of(8, 12))
+                Day(
+                    LocalDate.of(2020, 7, 13),
+                    listOf(
+                        Line.SpecialDay("Vacation"),
+                        Line.Comment("Came back from Jämtland"),
+                        Line.Blank
+                    )
+                ),
+                Day(
+                    LocalDate.of(2020, 7, 14),
+                    listOf(
+                        Line.ClosedShift(LocalTime.of(8, 32), LocalTime.of(12, 2)),
+                        Line.ClosedShift(LocalTime.of(12, 30), LocalTime.of(13, 1)),
+                        Line.ClosedShift(LocalTime.of(13, 45), LocalTime.of(18, 3)),
+                        Line.Blank
+                    )
+                ),
+                Day(
+                    LocalDate.of(2020, 7, 15),
+                    listOf(
+                        Line.ClosedShift(LocalTime.of(11, 0), LocalTime.of(18, 0)),
+                        Line.Blank
+                    )
+                ),
+                Day(
+                    LocalDate.of(2020, 7, 16),
+                    listOf(
+                        Line.ClosedShift(LocalTime.of(8, 0), LocalTime.of(12, 0)),
+                        Line.SpecialShift("VAB", LocalTime.of(13, 0), LocalTime.of(17, 0)),
+                        Line.Blank
+                    )
+                ),
+                Day(
+                    LocalDate.of(2020, 7, 17),
+                    listOf(
+                        Line.OpenShift(LocalTime.of(8, 12))
+                    )
+                )
             )
         )
         assertEquals(serializedForm, serializer.documentToString(document))

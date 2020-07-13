@@ -47,8 +47,24 @@ internal class RepositoryTest {
     @Test
     internal fun `create a default document`() {
         val repository = createRepository()
-        val x = repository.defaultDocument(LocalDate.of(2020, 7, 11))
-        assertEquals(null, x)
+        val document = repository.defaultDocument(LocalDate.of(2020, 7, 11))
+        fun dayWithBlank(year: Int, month: Int, day: Int) = Day(
+            LocalDate.of(year, month, day),
+            listOf(Line.Blank)
+        )
+        assertEquals(
+            Document(
+                emptyList(),
+                listOf(
+                    dayWithBlank(2020, 7, 6),
+                    dayWithBlank(2020, 7, 7),
+                    dayWithBlank(2020, 7, 8),
+                    dayWithBlank(2020, 7, 9),
+                    dayWithBlank(2020, 7, 10)
+                )
+            ),
+            document
+        )
     }
 
     private fun createRepository() = Repository(FileSystems.getDefault(), Serializer())

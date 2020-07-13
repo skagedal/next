@@ -1,5 +1,7 @@
 package tech.skagedal.assistant.tracker
 
+import tech.skagedal.assistant.general.segment
+import tech.skagedal.assistant.general.splitSublists
 import java.io.Reader
 import java.io.Writer
 import java.time.LocalDate
@@ -21,7 +23,15 @@ class Serializer {
         .toFormatter()
 
     fun writeDocument(document: Document, writer: Writer) {
-        for (line in document.lines) {
+        writeLines(document.preamble, writer)
+        for (day in document.days) {
+            writer.write("[${headerDateFormat(day.date)}]\n")
+            writeLines(day.lines, writer)
+        }
+    }
+
+    private fun writeLines(lines: List<Line>, writer: Writer) {
+        for (line in lines) {
             when (line) {
                 is Line.Comment -> writer.write("# ${line.text}\n")
                 is Line.DayHeader -> writer.write("[${headerDateFormat(line.date)}]\n")
@@ -55,7 +65,19 @@ class Serializer {
     private val specialDayPattern = Pattern.compile("^\\* (?<text>[A-Za-z]+)$")
     private val blankPattern = Pattern.compile("^\\s*$")
 
-    fun parseDocument(reader: Reader) = Document(reader.readLines().mapIndexed(this::parseLine))
+    fun parseDocument(reader: Reader): Document {
+        val scannedLines = reader.readLines().mapIndexed(this::parseLine)
+        val (preamble, dayLines) = scannedLines.segment { it !is Line.DayHeader }
+        val days = dayLines.splitSublists { it is Line.DayHeader }.map { lines ->
+            val dayHeader = lines.first() as Line.DayHeader
+            val contentLines = lines.drop(1)
+            Day(dayHeader.date, contentLines)
+        }
+        return Document(
+            preamble,
+            days
+        )
+    }
 
     private fun parseLine(lineNumber: Int, string: String): Line =
         parseComment(string)
