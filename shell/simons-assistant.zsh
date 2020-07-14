@@ -7,6 +7,6 @@ function next () {
 }
 
 function work () {
-    date +%H:%M | pbcopy
+    date +%H:%M | tr -d '\n' | pbcopy
     simons-assistant track-edit
 }
