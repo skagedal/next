@@ -52,7 +52,7 @@ fun main(args: Array<String>) {
         fileSystem,
         trackerSerializer
     )
-    val timeTracker = TimeTracker(trackerRepository, trackerSerializer)
+    val timeTracker = TimeTracker(trackerRepository, trackerSerializer, 60 * 8)
 
     val trackEditCommand = TrackEdit(
         trackerRepository,
