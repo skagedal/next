@@ -3,6 +3,7 @@ package tech.skagedal.assistant.tracker
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.nio.file.FileSystems
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalTime
 import kotlin.test.assertTrue
@@ -12,8 +13,8 @@ internal class TimeTrackerTest {
     internal fun `test that TimeTracker calculates time spans correctly`() {
         val timeTracker = createTimeTracker()
         assertEquals(
-            60,
-            timeTracker.minutesForLine(
+            Duration.ofMinutes(60),
+            timeTracker.trackedDurationForLine(
                 Line.ClosedShift(
                     LocalTime.of(11, 0),
                     LocalTime.of(12, 0)
@@ -23,8 +24,8 @@ internal class TimeTrackerTest {
         )
 
         assertEquals(
-            60 * 8,
-            timeTracker.minutesForLine(
+            Duration.ofMinutes(60 * 8),
+            timeTracker.trackedDurationForLine(
                 Line.SpecialDay("vacation"),
                 LocalTime.of(0, 0)
             )
@@ -34,7 +35,7 @@ internal class TimeTrackerTest {
     @Test
     internal fun `test that TimeTracker sums up days correctly`() {
         val timeTracker = createTimeTracker()
-        val minutes = timeTracker.minutesForDay(
+        val duration = timeTracker.trackedDurationForDay(
             Day(
                 LocalDate.of(2020, 1, 1),
                 listOf(
@@ -54,7 +55,7 @@ internal class TimeTrackerTest {
             ),
             LocalTime.of(15, 0)
         )
-        assertEquals(60 + 60 + 120, minutes)
+        assertEquals(Duration.ofMinutes(60 + 60 + 120), duration)
     }
 
     @Test
@@ -96,11 +97,11 @@ internal class TimeTrackerTest {
             currentTime
         )
         assertEquals(
-            8 * 60 + 20 + 20 + 90,
+            Duration.ofMinutes(8 * 60 + 20 + 20 + 90),
             weekReport.minutesThisWeek
         )
         assertEquals(
-            20 + 20 + 90,
+            Duration.ofMinutes(20 + 20 + 90),
             weekReport.minutesToday
         )
         assertTrue(weekReport.isOngoing)
@@ -115,4 +116,5 @@ internal class TimeTrackerTest {
         )
         return timeTracker
     }
+
 }

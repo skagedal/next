@@ -1,7 +1,9 @@
 package tech.skagedal.assistant.tracker
 
+import java.time.Duration
+
 data class WeekReport(
-    val minutesToday: Long,
-    val minutesThisWeek: Long,
+    val minutesToday: Duration,
+    val minutesThisWeek: Duration,
     val isOngoing: Boolean
 )
