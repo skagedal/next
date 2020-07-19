@@ -98,11 +98,11 @@ internal class TimeTrackerTest {
         )
         assertEquals(
             Duration.ofMinutes(8 * 60 + 20 + 20 + 90),
-            weekReport.minutesThisWeek
+            weekReport.durationThisWeek
         )
         assertEquals(
             Duration.ofMinutes(20 + 20 + 90),
-            weekReport.minutesToday
+            weekReport.durationToday
         )
         assertTrue(weekReport.isOngoing)
     }
