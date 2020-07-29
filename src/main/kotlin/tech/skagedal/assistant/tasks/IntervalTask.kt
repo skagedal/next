@@ -22,7 +22,7 @@ class IntervalTask(
             doTheTask()
             repository.weJustDid(taskIdentifier)
         } else {
-            println("Not performing $taskIdentifier, because ${due.reason}")
+            println("Not performing $taskIdentifier, because ${due.reason}.")
         }
 
         return TaskResult.Proceed
