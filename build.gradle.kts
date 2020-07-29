@@ -1,8 +1,8 @@
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.71"
     application
+    kotlin("jvm") version "1.3.72"
 }
 
 repositories {
@@ -11,7 +11,7 @@ repositories {
 
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation(kotlin("stdlib-jdk8"))
 
     implementation("com.google.api-client:google-api-client:1.23.0")
     implementation("com.google.oauth-client:google-oauth-client-jetty:1.23.0")
@@ -28,6 +28,7 @@ dependencies {
 
 application {
     mainClassName = "tech.skagedal.assistant.MainKt"
+
 }
 
 tasks {
@@ -43,5 +44,16 @@ tasks {
             // JVM(s) on the console
             showStandardStreams = true
         }
+    }
+}
+
+java {
+    sourceCompatibility = org.gradle.api.JavaVersion.VERSION_11
+    targetCompatibility = org.gradle.api.JavaVersion.VERSION_11
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = "11"
     }
 }

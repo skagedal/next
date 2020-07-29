@@ -36,13 +36,8 @@ class Next(
 
     fun runCommand(): Int {
         val pass = {}
-        val tasks = try {
-            readTasks().tasks
-        } catch (exception: ConfigurationLoader.BadConfigurationFormat) {
-            System.err.println(exception.message)
-            return 1
-        }
-        for (task in runnableTasks(tasks)) {
+        val tasks = readTasks() ?: return 1
+        for (task in runnableTasks(tasks.tasks)) {
             val result = task.run()
             when (result) {
                 TaskResult.Proceed -> pass()
@@ -59,17 +54,24 @@ class Next(
     fun runnableTasks(tasks: List<Task>): List<RunnableTask> {
         return tasks.flatMap { task ->
             when (task) {
-                Task.BrewUpgradeTask -> listOf(intervalTaskFactory.brewUpgradeTask())
                 Task.FileSystemLintTask -> fileSystemLinterTaskFactory.standardTasks()
+                is Task.BrewUpgradeTask -> listOf(intervalTaskFactory.brewUpgradeTask(task.whenExpression))
                 is Task.GmailTask -> listOf(gmailCheckerTaskFactory.task(task.account))
                 is Task.GitReposTask -> listOf(gitReposTaskFactory.task(task.directory))
             }
         }
     }
 
-    private fun readTasks(): TasksFile {
-        return Files.newBufferedReader(fileSystem.tasksYmlFile()).use { reader ->
-            configurationLoader.loadTasks(reader)
+    private fun readTasks(): TasksFile? {
+        val tasksFile = fileSystem.tasksYmlFile()
+        return Files.newBufferedReader(tasksFile).use { reader ->
+            try {
+                configurationLoader.loadTasks(reader)
+            } catch (exception: ConfigurationLoader.BadConfigurationFormat) {
+                System.err.println("There was something wrong with $tasksFile:\n")
+                System.err.println(exception.message)
+                null
+            }
         }
     }
 }
