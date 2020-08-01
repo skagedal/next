@@ -52,7 +52,7 @@ class GitReposTask(val path: Path) : RunnableTask {
 
     private fun repoResult(dir: Path): GitResult {
         if (!Files.isDirectory(dir)) {
-            return if (path.isGloballyIgnored()) GitResult.CLEAN else GitResult.NOT_A_DIRECTORY
+            return if (dir.isGloballyIgnored()) GitResult.CLEAN else GitResult.NOT_A_DIRECTORY
         }
         val process = ProcessBuilder("git", "status", "--porcelain", "-unormal")
             .directory(dir.toFile())
