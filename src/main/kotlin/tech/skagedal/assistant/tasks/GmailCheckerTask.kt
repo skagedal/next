@@ -29,7 +29,7 @@ class GmailCheckerTask(
     val jacksonFactory: JacksonFactory,
     val account: String
 ) : RunnableTask {
-    override fun run(): TaskResult {
+    override fun runTask(): TaskResult {
         println("Checking account $account...")
         val transport = GoogleNetHttpTransport.newTrustedTransport()
         val service = Gmail.Builder(transport, jacksonFactory, getCredentials(transport, account))

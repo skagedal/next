@@ -38,7 +38,7 @@ class Next(
         val pass = {}
         val tasks = readTasks() ?: return 1
         for (task in runnableTasks(tasks.tasks)) {
-            val result = task.run()
+            val result = task.runTask()
             when (result) {
                 TaskResult.Proceed -> pass()
                 TaskResult.ActionRequired -> return EXIT_NORMAL

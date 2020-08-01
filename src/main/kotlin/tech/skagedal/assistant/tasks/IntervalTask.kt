@@ -15,7 +15,7 @@ class IntervalTask(
     val taskIdentifier: String,
     val doTheTask: () -> Unit
 ) : RunnableTask {
-    override fun run(): TaskResult {
+    override fun runTask(): TaskResult {
         val due = checkDue(repository.whenDidWeLastDo(taskIdentifier), Instant.now(), whenExpression)
         if (due.isDue) {
             println("Performing $taskIdentifier, because ${due.reason}.")

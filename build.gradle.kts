@@ -13,6 +13,8 @@ dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
     implementation(kotlin("stdlib-jdk8"))
 
+    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.8")
+    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", "1.3.8")
     implementation("com.google.api-client:google-api-client:1.23.0")
     implementation("com.google.oauth-client:google-oauth-client-jetty:1.23.0")
     implementation("com.google.apis:google-api-services-gmail:v1-rev83-1.23.0")

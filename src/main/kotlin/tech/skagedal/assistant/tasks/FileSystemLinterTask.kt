@@ -10,7 +10,7 @@ class FileSystemLinterTask(
     val atThePlaceString: String,
     val pathFilter: (Path) -> Boolean
 ) : RunnableTask {
-    override fun run(): TaskResult {
+    override fun runTask(): TaskResult {
         val files = uncleanFiles()
         if (files.isNotEmpty()) {
             println("You have files laying around $atThePlaceString.")
