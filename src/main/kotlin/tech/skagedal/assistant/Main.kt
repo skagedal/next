@@ -25,6 +25,7 @@ fun main(args: Array<String>) {
         processRunner
     )
     val intervalTaskRunner = IntervalTaskFactory(
+        fileSystem,
         processRunner,
         repository
     )

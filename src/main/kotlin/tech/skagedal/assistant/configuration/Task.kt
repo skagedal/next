@@ -29,7 +29,8 @@ sealed class Task {
         val id: String,
         val shell: String,
         @JsonProperty("when")
-        val whenExpression: WhenExpression
+        val whenExpression: WhenExpression,
+        val directory: String?
    ) : Task()
 
     object FileSystemLintTask : Task()

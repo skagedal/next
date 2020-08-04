@@ -17,7 +17,7 @@ internal class ConfigurationLoaderTest {
                     Task.BrewUpgradeTask(WhenExpression.Always),
                     Task.FileSystemLintTask,
                     Task.GmailTask("foo@bar.com"),
-                    Task.CustomTask("foo", "echo hello", WhenExpression.Always)
+                    Task.CustomTask("foo", "echo hello", WhenExpression.Always, null)
                 )
             ),
             configurationLoader.loadTasks(

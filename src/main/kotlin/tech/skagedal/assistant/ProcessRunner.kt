@@ -33,7 +33,7 @@ class ProcessRunner {
         )
     }
 
-    fun runShellCommand(shellCommand: String) {
-        runCommand(listOf("bash", "-c", shellCommand))
+    fun runShellCommand(shellCommand: String, directory: Path?) {
+        runCommand(listOf("bash", "-c", shellCommand), directory)
     }
 }
