@@ -1,5 +1,6 @@
 package tech.skagedal.assistant.tracker
 
+import tech.skagedal.assistant.general.matcherIfMatches
 import tech.skagedal.assistant.general.segment
 import tech.skagedal.assistant.general.splitSublists
 import java.io.Reader
@@ -130,7 +131,4 @@ class Serializer {
 
     private fun parseBlank(string: String): Line? =
         blankPattern.matcherIfMatches(string)?.let { Line.Blank }
-
-    private fun Pattern.matcherIfMatches(string: String): Matcher? =
-        matcher(string).let { if (it.matches()) it else null }
 }

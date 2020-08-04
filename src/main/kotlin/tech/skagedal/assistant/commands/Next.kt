@@ -55,6 +55,9 @@ class Next(
         return tasks.flatMap { task ->
             when (task) {
                 Task.FileSystemLintTask -> fileSystemLinterTaskFactory.standardTasks()
+                is Task.CustomTask -> listOf(intervalTaskFactory.customShellTask(
+                    task.shell, task.id, task.whenExpression
+                ))
                 is Task.BrewUpgradeTask -> listOf(intervalTaskFactory.brewUpgradeTask(task.whenExpression))
                 is Task.GmailTask -> listOf(gmailCheckerTaskFactory.task(task.account))
                 is Task.GitReposTask -> listOf(gitReposTaskFactory.task(task.directory))

@@ -18,6 +18,17 @@ class IntervalTaskFactory(
         )
     }
 
+    fun customShellTask(shellCommand: String, taskIdentifier: String, whenExpression: WhenExpression): RunnableTask {
+        return IntervalTask(
+            repository,
+            whenExpression,
+            taskIdentifier,
+            {
+                processRunner.runShellCommand(shellCommand)
+            }
+        )
+    }
+
     private fun doBrewUpgrade() {
         processRunner.runBrewUpgrade()
     }

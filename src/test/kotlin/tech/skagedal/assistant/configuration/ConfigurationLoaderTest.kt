@@ -16,7 +16,8 @@ internal class ConfigurationLoaderTest {
                 listOf(
                     Task.BrewUpgradeTask(WhenExpression.Always),
                     Task.FileSystemLintTask,
-                    Task.GmailTask("foo@bar.com")
+                    Task.GmailTask("foo@bar.com"),
+                    Task.CustomTask("foo", "echo hello", WhenExpression.Always)
                 )
             ),
             configurationLoader.loadTasks(
@@ -26,17 +27,13 @@ internal class ConfigurationLoaderTest {
                 - task: file-system-lint
                 - task: gmail
                   account: foo@bar.com
+                - task: custom
+                  id: foo
+                  shell: "echo hello"
+                  when: always
                 """.trimIndent()
             )
         )
-    }
-
-    @Test
-    internal fun `when expressions are parsed correctly`() {
-        assertEquals(WhenExpression.Always, configurationLoader.parseWhenExpression("always"))
-        assertEquals(WhenExpression.Never, configurationLoader.parseWhenExpression("never"))
-        assertEquals(WhenExpression.EveryNDays(1), configurationLoader.parseWhenExpression("daily"))
-        assertThrows<ValueInstantiationException> { configurationLoader.parseWhenExpression("asdf") }
     }
 
     private fun ConfigurationLoader.loadTasks(str: String) = loadTasks(StringReader(str))

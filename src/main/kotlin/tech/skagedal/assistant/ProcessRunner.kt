@@ -3,10 +3,6 @@ package tech.skagedal.assistant
 import java.nio.file.Path
 
 class ProcessRunner {
-    fun runInteractiveShell(directory: Path) {
-        runCommand(listOf("zsh"), directory)
-    }
-
     fun runBrewUpgrade() {
         runCommand(listOf("brew", "upgrade"))
     }
@@ -35,5 +31,9 @@ class ProcessRunner {
                 path.toString()
             )
         )
+    }
+
+    fun runShellCommand(shellCommand: String) {
+        runCommand(listOf("bash", "-c", shellCommand))
     }
 }

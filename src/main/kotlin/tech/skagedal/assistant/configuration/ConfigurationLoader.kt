@@ -3,6 +3,7 @@ package tech.skagedal.assistant.configuration
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException
+import com.fasterxml.jackson.databind.exc.ValueInstantiationException
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.SingletonSupport
@@ -25,6 +26,8 @@ class ConfigurationLoader {
             e
         )
     } catch (e: UnrecognizedPropertyException) {
+        throw BadConfigurationFormat(e.localizedMessage, e)
+    } catch (e: ValueInstantiationException) {
         throw BadConfigurationFormat(e.localizedMessage, e)
     }
 

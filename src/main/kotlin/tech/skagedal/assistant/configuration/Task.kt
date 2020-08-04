@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import java.lang.RuntimeException
+import java.util.regex.Pattern
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -12,6 +13,7 @@ import java.lang.RuntimeException
     property = "task"
 )
 @JsonSubTypes(
+    JsonSubTypes.Type(value = Task.CustomTask::class, name = "custom"),
     JsonSubTypes.Type(value = Task.BrewUpgradeTask::class, name = "brew-upgrade"),
     JsonSubTypes.Type(value = Task.FileSystemLintTask::class, name = "file-system-lint"),
     JsonSubTypes.Type(value = Task.GmailTask::class, name = "gmail"),
@@ -23,7 +25,15 @@ sealed class Task {
         val whenExpression: WhenExpression
     ) : Task()
 
+    data class CustomTask(
+        val id: String,
+        val shell: String,
+        @JsonProperty("when")
+        val whenExpression: WhenExpression
+   ) : Task()
+
     object FileSystemLintTask : Task()
+
     data class GmailTask(
         val account: String
     ) : Task()
@@ -41,19 +51,11 @@ sealed class WhenExpression {
     ) : WhenExpression()
 
     companion object {
+        val whenExpressionParser = WhenExpressionParser()
+
         @JvmStatic
         @JsonCreator
-        fun fromString(string: String): WhenExpression {
-            return when (string) {
-                "never" -> Never
-                "always" -> Always
-                "daily" -> EveryNDays(1)
-                else -> throw UnknownWhenString(
-                    "Can't parse $string as a \"when\" string",
-                    string
-                )
-            }
-        }
+        fun fromString(string: String) = whenExpressionParser.parse(string)
     }
 }
 
