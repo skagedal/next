@@ -110,20 +110,56 @@ internal class TimeTrackerTest {
 
     @Test
     internal fun `test that we can start a new shift in an empty document`() {
-        val date = LocalDate.of(2019, 12, 3)
-        val shiftStart = LocalTime.of(8, 0)
         val timeTracker = createTimeTracker()
         val document = Document(
             emptyList(),
             emptyList()
         )
-        val newDocument = timeTracker.documentWithTrackingStarted(document, date, shiftStart)
+        val newDocument = timeTracker.documentWithTrackingStarted(
+            document,
+            LocalDate.of(2019, 12, 3),
+            LocalTime.of(8, 0)
+        )
         assertEquals(
             Document(
                 emptyList(),
                 listOf(
-                    Day(date, listOf(
-                        Line.OpenShift(shiftStart)
+                    Day(
+                        LocalDate.of(2019, 12, 3), listOf(
+                        Line.OpenShift(LocalTime.of(8, 0))
+                    ))
+                )
+            ),
+            newDocument
+        )
+    }
+
+    @Test
+    internal fun `test that a blank line is inserted before inserted date`() {
+        val timeTracker = createTimeTracker()
+        val document = Document(
+            emptyList(),
+            listOf(
+                Day(LocalDate.of(2019, 12, 2), listOf(
+                    Line.ClosedShift(LocalTime.of(10, 0), LocalTime.of(10, 30))
+                ))
+            )
+        )
+        val newDocument = timeTracker.documentWithTrackingStarted(
+            document,
+            LocalDate.of(2019, 12, 3),
+            LocalTime.of(8, 0)
+        )
+        assertEquals(
+            Document(
+                emptyList(),
+                listOf(
+                    Day(LocalDate.of(2019, 12, 2), listOf(
+                        Line.ClosedShift(LocalTime.of(10, 0), LocalTime.of(10, 30)),
+                        Line.Blank
+                    )),
+                    Day(LocalDate.of(2019, 12, 3), listOf(
+                        Line.OpenShift(LocalTime.of(8, 0))
                     ))
                 )
             ),

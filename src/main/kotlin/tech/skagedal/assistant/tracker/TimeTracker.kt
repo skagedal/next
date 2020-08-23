@@ -76,17 +76,27 @@ class TimeTracker(
                 }
             )
         } else {
+            val daysBefore = document.days.takeWhile { it.date.isBefore(date) }.let { days ->
+                if (days.isNotEmpty()) {
+                    days.dropLast(1) + listOf(days.last().addingBlankLine())
+                } else {
+                    days
+                }
+            }
+            val daysAfter = document.days.dropWhile { it.date.isBefore(date) }
+            val insertedDays = listOf(Day(date, listOf(Line.OpenShift(time))))
             document.copy(
-                days =
-                    document.days.takeWhile { it.date.isBefore(date) } +
-                        listOf(Day(date, listOf(Line.OpenShift(time)))) +
-                        document.days.dropWhile { it.date.isBefore(date) }
+                days = daysBefore + insertedDays + daysAfter
             )
         }
     }
 
     private fun Document.hasOpenShift() = days.any { it.hasOpenShift() }
     private fun Day.hasOpenShift() = lines.any { it is Line.OpenShift }
+
+    private fun Day.addingBlankLine() = copy(
+        lines = lines + listOf(Line.Blank)
+    )
 
     private fun Iterable<Duration>.sum() = fold(Duration.ZERO, Duration::plus)
 }
