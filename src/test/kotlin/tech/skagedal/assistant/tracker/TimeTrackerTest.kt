@@ -2,6 +2,7 @@ package tech.skagedal.assistant.tracker
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.nio.file.FileSystems
 import java.time.Duration
 import java.time.LocalDate
@@ -105,6 +106,87 @@ internal class TimeTrackerTest {
             weekReport.durationToday
         )
         assertTrue(weekReport.isOngoing)
+    }
+
+    @Test
+    internal fun `test that we can start a new shift in an empty document`() {
+        val date = LocalDate.of(2019, 12, 3)
+        val shiftStart = LocalTime.of(8, 0)
+        val timeTracker = createTimeTracker()
+        val document = Document(
+            emptyList(),
+            emptyList()
+        )
+        val newDocument = timeTracker.documentWithTrackingStarted(document, date, shiftStart)
+        assertEquals(
+            Document(
+                emptyList(),
+                listOf(
+                    Day(date, listOf(
+                        Line.OpenShift(shiftStart)
+                    ))
+                )
+            ),
+            newDocument
+        )
+    }
+
+    @Test
+    internal fun `test that we can start a shift on an already existing date`() {
+        val timeTracker = createTimeTracker()
+        val document = Document(
+            emptyList(),
+            listOf(
+                Day(LocalDate.of(2019, 12, 2), listOf(
+                    Line.ClosedShift(LocalTime.of(10, 0), LocalTime.of(10, 30))
+                )),
+                Day(LocalDate.of(2019, 12, 3), listOf(
+                    Line.ClosedShift(LocalTime.of(11, 0), LocalTime.of(11, 40))
+                ))
+            )
+        )
+        val newDocument = timeTracker.documentWithTrackingStarted(
+            document,
+            LocalDate.of(2019, 12, 3),
+            LocalTime.of(12, 0)
+        )
+        assertEquals(
+            Document(
+                emptyList(),
+                listOf(
+                    Day(LocalDate.of(2019, 12, 2), listOf(
+                        Line.ClosedShift(LocalTime.of(10, 0), LocalTime.of(10, 30))
+                    )),
+                    Day(LocalDate.of(2019, 12, 3), listOf(
+                        Line.ClosedShift(LocalTime.of(11, 0), LocalTime.of(11, 40)),
+                        Line.OpenShift(LocalTime.of(12, 0))
+                    ))
+                )
+            ),
+            newDocument
+        )
+    }
+
+    @Test
+    internal fun `tests that we can not start a shift if one is already started`() {
+        val timeTracker = createTimeTracker()
+        assertThrows<TrackerFileAlreadyHasOpenShiftException> {
+            timeTracker.documentWithTrackingStarted(
+                Document(
+                    emptyList(),
+                    listOf(
+                        Day(
+                            LocalDate.of(2020, 4, 20),
+                            listOf(
+                                Line.OpenShift(LocalTime.of(12, 0))
+                            )
+                        )
+                    )
+                ),
+                LocalDate.of(2020, 4, 20),
+                LocalTime.of(13, 0)
+            )
+        }
     }
 
     private fun createTimeTracker(): TimeTracker {

@@ -5,6 +5,7 @@ import tech.skagedal.assistant.commands.Next
 import tech.skagedal.assistant.commands.SimonsAssistant
 import tech.skagedal.assistant.commands.TrackEdit
 import tech.skagedal.assistant.commands.TrackReport
+import tech.skagedal.assistant.commands.TrackStart
 import tech.skagedal.assistant.configuration.ConfigurationLoader
 import tech.skagedal.assistant.tasks.FileSystemLinterTaskFactory
 import tech.skagedal.assistant.tasks.GitReposTaskFactory
@@ -62,9 +63,12 @@ fun main(args: Array<String>) {
     val trackReportCommand = TrackReport(
         timeTracker
     )
+    val trackStartCommand = TrackStart(
+        timeTracker
+    )
 
     val simonsAssistant = SimonsAssistant(
-        listOf(nextCommand, trackEditCommand, trackReportCommand)
+        listOf(nextCommand, trackEditCommand, trackReportCommand, trackStartCommand)
     )
     simonsAssistant.main(args)
 }

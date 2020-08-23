@@ -6,6 +6,8 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 
+class TrackerFileAlreadyHasOpenShiftException(override val message: String?) : RuntimeException(message)
+
 class TimeTracker(
     private val repository: Repository,
     private val serializer: Serializer,
@@ -47,6 +49,41 @@ class TimeTracker(
             is Line.SpecialShift -> Duration.between(line.startTime, line.stopTime)
             Line.Blank -> Duration.ZERO
         }
+
+    fun startTracking(date: LocalDate, time: LocalTime) {
+        val path = repository.weekTrackerFileCreateIfNeeded(date)
+        val document = Files.newBufferedReader(path).use { serializer.parseDocument(it) }
+        val newDocument = documentWithTrackingStarted(document, date, time)
+        Files.newBufferedWriter(path).use { serializer.writeDocument(newDocument, it) }
+    }
+
+    fun documentWithTrackingStarted(document: Document, date: LocalDate, time: LocalTime): Document {
+        if (document.days.any { it.lines.any { it is Line.OpenShift } }) {
+            throw TrackerFileAlreadyHasOpenShiftException("There is already an open shift")
+        }
+
+        val day = document.days.find { it.date == date }
+        return if (day != null) {
+            document.copy(
+                days = document.days.map {
+                    if (it === day) {
+                        it.copy(
+                            lines = it.lines + listOf(Line.OpenShift(time))
+                        )
+                    } else {
+                        it
+                    }
+                }
+            )
+        } else {
+            document.copy(
+                days =
+                    document.days.takeWhile { it.date.isBefore(date) } +
+                        listOf(Day(date, listOf(Line.OpenShift(time)))) +
+                        document.days.dropWhile { it.date.isBefore(date) }
+            )
+        }
+    }
 
     private fun Document.hasOpenShift() = days.any { it.hasOpenShift() }
     private fun Day.hasOpenShift() = lines.any { it is Line.OpenShift }
