@@ -11,7 +11,7 @@ import kotlin.test.assertTrue
 
 internal class TimeTrackerTest {
     @org.junit.jupiter.api.Test
-    internal fun `test that TimeTracker calculates time spans correctly`() {
+    internal fun `time spans are calculated correctly`() {
         val timeTracker = createTimeTracker()
         assertEquals(
             Duration.ofMinutes(60),
@@ -34,7 +34,7 @@ internal class TimeTrackerTest {
     }
 
     @Test
-    internal fun `test that TimeTracker sums up days correctly`() {
+    internal fun `days are summed up correctly`() {
         val timeTracker = createTimeTracker()
         val duration = timeTracker.trackedDurationForDay(
             Day(
@@ -60,7 +60,7 @@ internal class TimeTrackerTest {
     }
 
     @Test
-    internal fun `test that TimeTracker gives correct week reports`() {
+    internal fun `week reports are correct`() {
         val timeTracker = createTimeTracker()
         val yesterday = LocalDate.of(2020, 7, 1)
         val today = LocalDate.of(2020, 7, 2)
@@ -109,7 +109,7 @@ internal class TimeTrackerTest {
     }
 
     @Test
-    internal fun `test that we can start a new shift in an empty document`() {
+    internal fun `we can start a new shift in an empty document`() {
         val timeTracker = createTimeTracker()
         val document = Document(
             emptyList(),
@@ -135,7 +135,7 @@ internal class TimeTrackerTest {
     }
 
     @Test
-    internal fun `test that a blank line is inserted before inserted date`() {
+    internal fun `a blank line is inserted before inserted date`() {
         val timeTracker = createTimeTracker()
         val document = Document(
             emptyList(),
@@ -168,7 +168,7 @@ internal class TimeTrackerTest {
     }
 
     @Test
-    internal fun `test that we can start a shift on an already existing date`() {
+    internal fun `we can start a shift on an already existing date`() {
         val timeTracker = createTimeTracker()
         val document = Document(
             emptyList(),
@@ -204,7 +204,7 @@ internal class TimeTrackerTest {
     }
 
     @Test
-    internal fun `test that new open shifts are added right after last existing shift`() {
+    internal fun `new open shifts are added right after last existing shift`() {
         val timeTracker = createTimeTracker()
         val document = Document(
             emptyList(),
@@ -236,7 +236,7 @@ internal class TimeTrackerTest {
     }
 
     @Test
-    internal fun `tests that we can not start a shift if one is already started`() {
+    internal fun `we can not start a shift if one is already started`() {
         val timeTracker = createTimeTracker()
         assertThrows<TrackerFileAlreadyHasOpenShiftException> {
             timeTracker.documentWithTrackingStarted(
@@ -253,6 +253,98 @@ internal class TimeTrackerTest {
                 ),
                 LocalDate.of(2020, 4, 20),
                 LocalTime.of(13, 0)
+            )
+        }
+    }
+
+    @Test
+    internal fun `we can stop a shift`() {
+        val timeTracker = createTimeTracker()
+        val document = Document(
+            emptyList(),
+            listOf(
+                Day(
+                    LocalDate.of(2019, 4, 1),
+                    listOf(
+                        Line.OpenShift(LocalTime.of(14, 0))
+                    )
+                )
+            )
+        )
+        val newDocument = timeTracker.documentWithTrackingStopped(
+            document,
+            LocalDate.of(2019, 4, 1),
+            LocalTime.of(14, 55)
+        )
+        assertEquals(
+            Document(
+                emptyList(),
+                listOf(
+                    Day(
+                        LocalDate.of(2019, 4, 1),
+                        listOf(
+                            Line.ClosedShift(
+                                LocalTime.of(14, 0),
+                                LocalTime.of(14, 55)
+                            )
+                        )
+                    )
+                )
+            ),
+            newDocument
+        )
+    }
+
+    @Test
+    internal fun `error is reported when multiple open shifts to close`() {
+        val timeTracker = createTimeTracker()
+        assertThrows<TrackerFileHasMultipleOpenShiftsInOneDayException> {
+            timeTracker.documentWithTrackingStopped(
+                Document(
+                    emptyList(),
+                    listOf(
+                        Day(
+                            LocalDate.of(2018, 5, 3),
+                            listOf(
+                                Line.OpenShift(LocalTime.of(11, 0)),
+                                Line.OpenShift(LocalTime.of(12, 0))
+                            )
+                        )
+                    )
+                ),
+                LocalDate.of(2018, 5, 3),
+                LocalTime.of(13, 0)
+            )
+        }
+    }
+
+    @Test
+    internal fun `error is reported when no open shift to close`() {
+        val timeTracker = createTimeTracker()
+        assertThrows<TrackerFileHasNoOpenShiftOnThatDayException> {
+            timeTracker.documentWithTrackingStopped(
+                Document(
+                    emptyList(),
+                    listOf(
+                        Day(
+                            LocalDate.of(2018, 6, 3),
+                            emptyList()
+                        )
+                    )
+                ),
+                LocalDate.of(2018, 6, 3),
+                LocalTime.of(10, 30)
+            )
+        }
+
+        assertThrows<TrackerFileHasNoOpenShiftOnThatDayException> {
+            timeTracker.documentWithTrackingStopped(
+                Document(
+                    emptyList(),
+                    emptyList()
+                ),
+                LocalDate.of(2018, 6, 3),
+                LocalTime.of(10, 30)
             )
         }
     }

@@ -7,6 +7,8 @@ import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 
 class TrackerFileAlreadyHasOpenShiftException(override val message: String?) : RuntimeException(message)
+class TrackerFileHasNoOpenShiftOnThatDayException(override val message: String?) : RuntimeException(message)
+class TrackerFileHasMultipleOpenShiftsInOneDayException(override val message: String?) : RuntimeException(message)
 
 class TimeTracker(
     private val repository: Repository,
@@ -57,6 +59,13 @@ class TimeTracker(
         Files.newBufferedWriter(path).use { serializer.writeDocument(newDocument, it) }
     }
 
+    fun stopTracking(date: LocalDate, time: LocalTime) {
+        val path = repository.pathForWeekTrackerFile(date)
+        val document = Files.newBufferedReader(path).use { serializer.parseDocument(it) }
+        val newDocument = documentWithTrackingStopped(document, date, time)
+        Files.newBufferedWriter(path).use { serializer.writeDocument(newDocument, it) }
+    }
+
     fun documentWithTrackingStarted(document: Document, date: LocalDate, time: LocalTime): Document {
         if (document.days.any { it.lines.any { it is Line.OpenShift } }) {
             throw TrackerFileAlreadyHasOpenShiftException("There is already an open shift")
@@ -91,10 +100,40 @@ class TimeTracker(
         }
     }
 
+    fun documentWithTrackingStopped(document: Document, date: LocalDate, time: LocalTime): Document {
+        val day = document.days.find { it.date == date }
+            ?: throw TrackerFileHasNoOpenShiftOnThatDayException("No open shift on $date")
+        return document.copy(
+            days = document.days.map {
+                if (it === day) {
+                    it.copy(
+                        lines = it.lines.closingShift(time)
+                    )
+                } else {
+                    it
+                }
+            }
+        )
+    }
+
     private fun List<Line>.addingShift(line: Line): List<Line> {
         val before = dropLastWhile { ! it.isShift() }
         val after = takeLastWhile { ! it.isShift() }
         return before + listOf(line) + after
+    }
+
+    private fun List<Line>.closingShift(stopTime: LocalTime): List<Line> {
+        val openShiftCount = filter { it is Line.OpenShift }.size
+        return when (openShiftCount) {
+            1 -> map {
+                if (it is Line.OpenShift)
+                    Line.ClosedShift(it.startTime, stopTime)
+                else
+                    it
+            }
+            0 -> throw TrackerFileHasNoOpenShiftOnThatDayException("No open shift on that day")
+            else -> throw TrackerFileHasMultipleOpenShiftsInOneDayException("More than one open shift in that day")
+        }
     }
 
     private fun Document.hasOpenShift() = days.any { it.hasOpenShift() }
