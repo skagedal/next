@@ -204,6 +204,38 @@ internal class TimeTrackerTest {
     }
 
     @Test
+    internal fun `test that new open shifts are added right after last existing shift`() {
+        val timeTracker = createTimeTracker()
+        val document = Document(
+            emptyList(),
+            listOf(
+                Day(LocalDate.of(2019, 12, 2), listOf(
+                    Line.ClosedShift(LocalTime.of(10, 0), LocalTime.of(10, 30)),
+                    Line.Blank
+                ))
+            )
+        )
+        val newDocument = timeTracker.documentWithTrackingStarted(
+            document,
+            LocalDate.of(2019, 12, 2),
+            LocalTime.of(12, 0)
+        )
+        assertEquals(
+            Document(
+                emptyList(),
+                listOf(
+                    Day(LocalDate.of(2019, 12, 2), listOf(
+                        Line.ClosedShift(LocalTime.of(10, 0), LocalTime.of(10, 30)),
+                        Line.OpenShift(LocalTime.of(12, 0)),
+                        Line.Blank
+                    ))
+                )
+            ),
+            newDocument
+        )
+    }
+
+    @Test
     internal fun `tests that we can not start a shift if one is already started`() {
         val timeTracker = createTimeTracker()
         assertThrows<TrackerFileAlreadyHasOpenShiftException> {

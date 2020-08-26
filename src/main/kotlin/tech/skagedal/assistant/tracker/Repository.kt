@@ -21,6 +21,11 @@ sealed class Line {
     object Blank : Line()
 }
 
+fun Line.isShift() = when (this) {
+    is Line.OpenShift, is Line.ClosedShift, is Line.SpecialShift -> true
+    is Line.Comment, is Line.DayHeader, is Line.SpecialDay, is Line.Blank -> false
+}
+
 data class Day(
     val date: LocalDate,
     val lines: List<Line>

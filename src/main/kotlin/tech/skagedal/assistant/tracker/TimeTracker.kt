@@ -68,7 +68,7 @@ class TimeTracker(
                 days = document.days.map {
                     if (it === day) {
                         it.copy(
-                            lines = it.lines + listOf(Line.OpenShift(time))
+                            lines = it.lines.addingShift(Line.OpenShift(time))
                         )
                     } else {
                         it
@@ -89,6 +89,12 @@ class TimeTracker(
                 days = daysBefore + insertedDays + daysAfter
             )
         }
+    }
+
+    private fun List<Line>.addingShift(line: Line): List<Line> {
+        val before = dropLastWhile { ! it.isShift() }
+        val after = takeLastWhile { ! it.isShift() }
+        return before + listOf(line) + after
     }
 
     private fun Document.hasOpenShift() = days.any { it.hasOpenShift() }
