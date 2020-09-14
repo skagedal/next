@@ -2,7 +2,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     application
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.4.0"
 }
 
 repositories {
@@ -22,6 +22,7 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.11.0")
     implementation("com.github.ajalt:clikt:2.4.0")
+    implementation("de.codeshelf.consoleui:consoleui:0.0.13")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

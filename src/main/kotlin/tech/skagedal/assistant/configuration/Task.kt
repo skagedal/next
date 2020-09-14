@@ -15,6 +15,7 @@ import java.util.regex.Pattern
 @JsonSubTypes(
     JsonSubTypes.Type(value = Task.CustomTask::class, name = "custom"),
     JsonSubTypes.Type(value = Task.BrewUpgradeTask::class, name = "brew-upgrade"),
+    JsonSubTypes.Type(value = Task.EstablishWorkOrHobbyTask::class, name = "establish-work-or-hobby"),
     JsonSubTypes.Type(value = Task.FileSystemLintTask::class, name = "file-system-lint"),
     JsonSubTypes.Type(value = Task.GmailTask::class, name = "gmail"),
     JsonSubTypes.Type(value = Task.GitReposTask::class, name = "git-repos")
@@ -33,6 +34,7 @@ sealed class Task {
         val directory: String?
    ) : Task()
 
+    object EstablishWorkOrHobbyTask : Task()
     object FileSystemLintTask : Task()
 
     data class GmailTask(

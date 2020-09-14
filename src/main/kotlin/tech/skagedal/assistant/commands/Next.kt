@@ -7,6 +7,7 @@ import tech.skagedal.assistant.TaskResult
 import tech.skagedal.assistant.configuration.ConfigurationLoader
 import tech.skagedal.assistant.configuration.Task
 import tech.skagedal.assistant.configuration.TasksFile
+import tech.skagedal.assistant.tasks.EstablishWorkOrHobbyTask
 import tech.skagedal.assistant.tasks.FileSystemLinterTaskFactory
 import tech.skagedal.assistant.tasks.GitReposTaskFactory
 import tech.skagedal.assistant.tasks.GmailCheckerTaskFactory
@@ -55,6 +56,7 @@ class Next(
         return tasks.flatMap { task ->
             when (task) {
                 Task.FileSystemLintTask -> fileSystemLinterTaskFactory.standardTasks()
+                Task.EstablishWorkOrHobbyTask -> listOf(EstablishWorkOrHobbyTask())
                 is Task.CustomTask -> listOf(intervalTaskFactory.customShellTask(
                     task.shell, task.id, task.whenExpression, task.directory
                 ))
