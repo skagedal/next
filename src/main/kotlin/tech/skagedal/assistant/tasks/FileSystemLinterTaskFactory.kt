@@ -3,6 +3,7 @@ package tech.skagedal.assistant.tasks
 import tech.skagedal.assistant.ProcessRunner
 import tech.skagedal.assistant.RunnableTask
 import tech.skagedal.assistant.desktop
+import tech.skagedal.assistant.downloads
 import tech.skagedal.assistant.home
 import tech.skagedal.assistant.isGloballyIgnored
 import java.nio.file.FileSystem
@@ -22,11 +23,16 @@ class FileSystemLinterTaskFactory(
             ::homeRules
         ),
 
-        // Rule: We should not have files or directories laying around on the Desktop.  The .DS_Store file is ok.
+        // Rule: We should not have files or directories laying around on the Desktop or in Downloads.  The .DS_Store file is ok.
 
         FileSystemLinterTask(
             fileSystem.desktop(),
             "on the Desktop",
+            ::desktopRules
+        ),
+        FileSystemLinterTask(
+            fileSystem.downloads(),
+            "in the Downloads folder",
             ::desktopRules
         )
     )
