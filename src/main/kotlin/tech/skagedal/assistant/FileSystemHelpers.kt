@@ -6,6 +6,7 @@ import java.util.regex.Matcher
 
 fun FileSystem.home() = getPath(System.getProperty("user.home"))
 fun FileSystem.desktop() = home().resolve("Desktop")
+fun FileSystem.downloads() = home().resolve("Downloads")
 
 fun FileSystem.assistantDirectory() = home().resolve(".simons-assistant")
 fun FileSystem.tasksYmlFile() = assistantDirectory().resolve("tasks.yml")

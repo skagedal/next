@@ -22,7 +22,7 @@ class FileSystemLinterTaskFactory(
             ::homeRules
         ),
 
-        // Rule: We should not have files laying around on the Desktop.  The .DS_Store file is ok.
+        // Rule: We should not have files or directories laying around on the Desktop.  The .DS_Store file is ok.
 
         FileSystemLinterTask(
             fileSystem.desktop(),
@@ -35,5 +35,5 @@ class FileSystemLinterTaskFactory(
         Files.isRegularFile(path) && !path.isGloballyIgnored() && !Files.isHidden(path)
 
     private fun desktopRules(path: Path) =
-        Files.isRegularFile(path) && !path.isGloballyIgnored()
+        !path.isGloballyIgnored()
 }
