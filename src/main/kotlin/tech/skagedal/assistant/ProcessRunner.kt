@@ -1,8 +1,11 @@
 package tech.skagedal.assistant
 
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
 class ProcessRunner {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     fun runBrewUpgrade() {
         runCommand(listOf("brew", "upgrade"))
     }
@@ -21,7 +24,7 @@ class ProcessRunner {
     }
 
     private fun printCommand(command: List<String>) {
-        println(command.joinToString(" "))
+        logger.debug("Running command {}", command.toString())
     }
 
     fun runEditor(path: Path) {

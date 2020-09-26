@@ -1,5 +1,11 @@
 package tech.skagedal.assistant
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.LoggerContext
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.FileAppender
 import com.google.api.client.json.jackson2.JacksonFactory
 import org.slf4j.LoggerFactory
 import tech.skagedal.assistant.commands.Next
@@ -19,22 +25,13 @@ import java.nio.file.FileSystems
 
 private object Main {
     val logger = LoggerFactory.getLogger(javaClass)
-
-    fun configureLogging() {
-        // https://stackoverflow.com/questions/16910955/programmatically-configure-logback-appender
-        // http://logback.qos.ch/manual/appenders.html
-    }
-
-    fun testLogging() {
-        Main.logger.info("Starting simons-assistant")
-        Main.logger.warn("This is a warning")
-        Main.logger.error("This is an error")
-        Main.logger.debug("And this is debug")
-    }
 }
 
 fun main(args: Array<String>) {
-    Main.configureLogging()
+    // Logging is configured in LoggingConfigurator, which logback finds because of the file
+    // META-INF.services.ch.qos.logback.classic.spi.Configurator.
+
+    Main.logger.info("Starting simons-assistant")
 
     val processRunner = ProcessRunner()
     val fileSystem = FileSystems.getDefault()

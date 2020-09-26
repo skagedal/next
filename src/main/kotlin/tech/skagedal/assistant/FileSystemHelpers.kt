@@ -11,6 +11,7 @@ fun FileSystem.downloads() = home().resolve("Downloads")
 fun FileSystem.assistantDirectory() = home().resolve(".simons-assistant")
 fun FileSystem.tasksYmlFile() = assistantDirectory().resolve("tasks.yml")
 fun FileSystem.assistantDataDirectory() = assistantDirectory().resolve("data")
+fun FileSystem.logsDirectory() = assistantDirectory().resolve("logs")
 
 fun FileSystem.pathWithShellExpansions(directory: String) = getPath(
     directory.replaceFirst(Regex("^~"), Matcher.quoteReplacement(System.getProperty("user.home")))

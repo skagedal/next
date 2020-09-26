@@ -12,6 +12,7 @@ import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.gmail.Gmail
 import com.google.api.services.gmail.GmailScopes
 import com.google.api.services.gmail.model.ListThreadsResponse
+import org.slf4j.LoggerFactory
 import tech.skagedal.assistant.ProcessRunner
 import tech.skagedal.assistant.RunnableTask
 import tech.skagedal.assistant.TaskResult
@@ -29,8 +30,10 @@ class GmailCheckerTask(
     val jacksonFactory: JacksonFactory,
     val account: String
 ) : RunnableTask {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     override fun runTask(): TaskResult {
-        println("Checking account $account...")
+        logger.info("Checking account {}.", account)
         val transport = GoogleNetHttpTransport.newTrustedTransport()
         val service = Gmail.Builder(transport, jacksonFactory, getCredentials(transport, account))
             .setApplicationName("simons-assistant")
@@ -44,23 +47,20 @@ class GmailCheckerTask(
             .execute()
 
         if (response.resultSizeEstimate == 0L) {
-            println("Inbox is empty!")
+            logger.info("Inbox of {} is empty.", account)
             return TaskResult.Proceed
         } else {
-            println("Inbox is not empty (${response.resultSizeEstimate} messages).  Opening Gmail.")
-            println("(To trouble shoot this, run simons-assistant with SIMONS_ASSISTANT_DEBUG_GMAIL=TRUE in the environment.)")
-            if (System.getenv("SIMONS_ASSISTANT_DEBUG_GMAIL") == "TRUE") {
-                printAllMessages(response)
-            }
+            logger.info("Inbox of {} contains {} messages. Opening Gmail.", account, response.resultSizeEstimate)
+            traceAllMessages(response)
             processRunner.openUrl("https://mail.google.com/mail/u/$account")
             return TaskResult.ActionRequired
         }
     }
 
-    private fun printAllMessages(response: ListThreadsResponse) {
+    private fun traceAllMessages(response: ListThreadsResponse) {
         for (m in response.threads) {
-            println("id: ${m.id}")
-            println(" - ${m.snippet}")
+            logger.trace("id: ${m.id}")
+            logger.trace(" - ${m.snippet}")
         }
     }
 

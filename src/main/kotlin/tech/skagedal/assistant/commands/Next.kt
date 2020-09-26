@@ -1,6 +1,7 @@
 package tech.skagedal.assistant.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
+import org.slf4j.LoggerFactory
 import tech.skagedal.assistant.Repository
 import tech.skagedal.assistant.RunnableTask
 import tech.skagedal.assistant.TaskResult
@@ -30,6 +31,7 @@ class Next(
     val gmailCheckerTaskFactory: GmailCheckerTaskFactory,
     val gitReposTaskFactory: GitReposTaskFactory
 ) : CliktCommand() {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     override fun run() {
         exitProcess(runCommand())
@@ -73,8 +75,7 @@ class Next(
             try {
                 configurationLoader.loadTasks(reader)
             } catch (exception: ConfigurationLoader.BadConfigurationFormat) {
-                System.err.println("There was something wrong with $tasksFile:\n")
-                System.err.println(exception.message)
+                logger.error("There was something wrong with $tasksFile", exception)
                 null
             }
         }

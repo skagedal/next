@@ -1,5 +1,6 @@
 package tech.skagedal.assistant.tasks
 
+import org.slf4j.LoggerFactory
 import tech.skagedal.assistant.Repository
 import tech.skagedal.assistant.RunnableTask
 import tech.skagedal.assistant.TaskResult
@@ -15,14 +16,17 @@ class IntervalTask(
     val taskIdentifier: String,
     val doTheTask: () -> Unit
 ) : RunnableTask {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     override fun runTask(): TaskResult {
         val due = checkDue(repository.whenDidWeLastDo(taskIdentifier), Instant.now(), whenExpression)
         if (due.isDue) {
-            println("Performing $taskIdentifier, because ${due.reason}.")
+            logger.info("Performing $taskIdentifier")
+            logger.debug("Performing $taskIdentifier, because ${due.reason}.")
             doTheTask()
             repository.weJustDid(taskIdentifier)
         } else {
-            println("Not performing $taskIdentifier, because ${due.reason}.")
+            logger.debug("Not performing $taskIdentifier, because ${due.reason}.")
         }
 
         return TaskResult.Proceed
