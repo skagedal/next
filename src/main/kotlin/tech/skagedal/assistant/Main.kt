@@ -1,6 +1,7 @@
 package tech.skagedal.assistant
 
 import com.google.api.client.json.jackson2.JacksonFactory
+import org.slf4j.LoggerFactory
 import tech.skagedal.assistant.commands.Next
 import tech.skagedal.assistant.commands.SimonsAssistant
 import tech.skagedal.assistant.commands.TrackEdit
@@ -16,7 +17,25 @@ import tech.skagedal.assistant.tracker.Serializer
 import tech.skagedal.assistant.tracker.TimeTracker
 import java.nio.file.FileSystems
 
+private object Main {
+    val logger = LoggerFactory.getLogger(javaClass)
+
+    fun configureLogging() {
+        // https://stackoverflow.com/questions/16910955/programmatically-configure-logback-appender
+        // http://logback.qos.ch/manual/appenders.html
+    }
+
+    fun testLogging() {
+        Main.logger.info("Starting simons-assistant")
+        Main.logger.warn("This is a warning")
+        Main.logger.error("This is an error")
+        Main.logger.debug("And this is debug")
+    }
+}
+
 fun main(args: Array<String>) {
+    Main.configureLogging()
+
     val processRunner = ProcessRunner()
     val fileSystem = FileSystems.getDefault()
     val repository = Repository(fileSystem)
@@ -68,5 +87,6 @@ fun main(args: Array<String>) {
     val simonsAssistant = SimonsAssistant(
         listOf(nextCommand, trackEditCommand, trackReportCommand, trackStartCommand, trackStopCommand)
     )
+
     simonsAssistant.main(args)
 }
