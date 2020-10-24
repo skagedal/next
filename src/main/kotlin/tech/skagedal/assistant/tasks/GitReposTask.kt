@@ -46,7 +46,7 @@ class GitReposTask(val path: Path) : RunnableTask {
                     System.err.println("Contains unmerged branches: ${it.path}")
                     result.branches.forEach(::println)
                     System.err.println("Run simons-assistant git-clean")
-                    TaskResult.ShellActionRequired(path)
+                    TaskResult.ShellActionRequired(it.path)
                 }
             }
         } ?: TaskResult.Proceed
