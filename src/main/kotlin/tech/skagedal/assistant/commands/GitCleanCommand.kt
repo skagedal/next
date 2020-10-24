@@ -12,13 +12,15 @@ import java.nio.file.FileSystem
 class GitCleanCommand(val fileSystem: FileSystem, val userInterface: UserInterface) : CliktCommand(name = "git-clean") {
     override fun run() {
         val repo = GitRepo(fileSystem.getPath("."))
-        for (branch in repo.getNotMergedBranches()) {
-            handleBranch(repo, branch)
-        }
+        handleBranches(repo, repo.getNotMergedBranches())
     }
 
     enum class BranchAction {
         DELETE, LOG, SHELL, NOTHING
+    }
+
+    fun handleBranches(repo: GitRepo, unmergedBranches: List<String>) {
+        unmergedBranches.forEach { handleBranch(repo, it) }
     }
 
     fun handleBranch(repo: GitRepo, branch: String) {

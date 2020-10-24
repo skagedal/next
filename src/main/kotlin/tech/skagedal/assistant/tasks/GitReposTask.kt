@@ -6,8 +6,12 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import tech.skagedal.assistant.RunnableTask
 import tech.skagedal.assistant.TaskResult
+import tech.skagedal.assistant.commands.GitCleanCommand
 import tech.skagedal.assistant.git.GitRepo
 import tech.skagedal.assistant.isGloballyIgnored
+import tech.skagedal.assistant.ui.UserInterface
+import java.nio.file.FileSystem
+import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -44,9 +48,10 @@ class GitReposTask(val path: Path) : RunnableTask {
                 GitResult.Clean -> throw IllegalStateException()
                 is GitResult.UnmergedBranches -> {
                     System.err.println("Contains unmerged branches: ${it.path}")
-                    result.branches.forEach(::println)
-                    System.err.println("Run simons-assistant git-clean")
-                    TaskResult.ShellActionRequired(it.path)
+                    val gitClean = GitCleanCommand(FileSystems.getDefault(), UserInterface())
+                    val gitRepo = GitRepo(it.path)
+                    gitClean.handleBranches(gitRepo, result.branches)
+                    TaskResult.Proceed
                 }
             }
         } ?: TaskResult.Proceed
