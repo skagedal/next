@@ -36,4 +36,8 @@ class UserInterface {
             AnsiConsole.systemUninstall()
         }
     }
+
+    fun reportActionTaken(message: String) {
+        println(message)
+    }
 }

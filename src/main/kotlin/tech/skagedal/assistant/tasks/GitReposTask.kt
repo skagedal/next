@@ -3,9 +3,7 @@ package tech.skagedal.assistant.tasks
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import tech.skagedal.assistant.RunnableTask
 import tech.skagedal.assistant.TaskResult
 import tech.skagedal.assistant.isGloballyIgnored
@@ -54,6 +52,15 @@ class GitReposTask(val path: Path) : RunnableTask {
         if (!Files.isDirectory(dir)) {
             return if (dir.isGloballyIgnored()) GitResult.CLEAN else GitResult.NOT_A_DIRECTORY
         }
+        val statusResult = gitStatusResult(dir)
+        if (statusResult != GitResult.CLEAN) {
+            return statusResult
+        }
+
+        return GitResult.CLEAN
+    }
+
+    private fun gitStatusResult(dir: Path): GitResult {
         val process = ProcessBuilder("git", "status", "--porcelain", "-unormal")
             .directory(dir.toFile())
             .start()
@@ -61,10 +68,11 @@ class GitReposTask(val path: Path) : RunnableTask {
         if (exitCode != 0) {
             return GitResult.NOT_A_GIT_REPOSITORY
         }
-        val bytes = process
+        val nonEmptyGitStatusResult = process
             .inputStream
             .readAllBytes()
-        return if (bytes.size > 0) GitResult.DIRTY else GitResult.CLEAN
+            .isNotEmpty()
+        return if (nonEmptyGitStatusResult) GitResult.DIRTY else GitResult.CLEAN
     }
 }
 

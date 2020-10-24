@@ -8,6 +8,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.FileAppender
 import com.google.api.client.json.jackson2.JacksonFactory
 import org.slf4j.LoggerFactory
+import tech.skagedal.assistant.commands.GitCleanCommand
 import tech.skagedal.assistant.commands.Next
 import tech.skagedal.assistant.commands.SimonsAssistant
 import tech.skagedal.assistant.commands.TrackEdit
@@ -21,6 +22,7 @@ import tech.skagedal.assistant.tasks.GmailCheckerTaskFactory
 import tech.skagedal.assistant.tasks.IntervalTaskFactory
 import tech.skagedal.assistant.tracker.Serializer
 import tech.skagedal.assistant.tracker.TimeTracker
+import tech.skagedal.assistant.ui.UserInterface
 import java.nio.file.FileSystems
 
 private object Main {
@@ -81,8 +83,10 @@ fun main(args: Array<String>) {
     val trackStartCommand = TrackStart(timeTracker)
     val trackStopCommand = TrackStop(timeTracker)
 
+    val gitCleanCommand = GitCleanCommand(fileSystem, UserInterface())
+
     val simonsAssistant = SimonsAssistant(
-        listOf(nextCommand, trackEditCommand, trackReportCommand, trackStartCommand, trackStopCommand)
+        listOf(nextCommand, trackEditCommand, trackReportCommand, trackStartCommand, trackStopCommand, gitCleanCommand)
     )
 
     simonsAssistant.main(args)
