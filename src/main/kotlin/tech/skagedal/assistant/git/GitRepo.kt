@@ -8,12 +8,51 @@ class GitRepo(val dir: Path) {
         return git("git", "branch", "--format=%(refname:short)", "--no-merged").linesExceptTrailing()
     }
 
-    fun getAllRemoteBranches(): List<String> {
-        return git("git", "branch", "--remotes", "--format=%(refname:short)").linesExceptTrailing()
+    fun getBranches(): List<Branch> {
+        return git("git", "branch", "--format=%(refname:short):%(upstream:short)")
+            .linesExceptTrailing()
+            .map { it.split(":") }
+            .map { it[0] to it[1] }
+            .map { (local, upstream) ->
+                Branch(
+                    local,
+                    if (upstream.isNotBlank())
+                        Upstream(upstream, getUpstreamStatus(local, upstream))
+                    else
+                        null
+                )
+            }
     }
 
-    fun deleteBranchForcefully(branch: String) {
-        git("git", "branch", "-D", branch)
+    fun getUpstreamStatus(local: String, upstream: String): UpstreamStatus {
+        val localIsAncestor = isAncestor(local, upstream)
+        val upstreamIsAncestor = isAncestor(upstream, local)
+        return when {
+            localIsAncestor && upstreamIsAncestor -> UpstreamStatus.IDENTICAL
+            localIsAncestor && !upstreamIsAncestor -> UpstreamStatus.UPSTREAM_IS_AHEAD_OF_LOCAL
+            !localIsAncestor && upstreamIsAncestor -> UpstreamStatus.LOCAL_IS_AHEAD_OF_UPSTREAM
+            branchExists(upstream) -> UpstreamStatus.MERGE_NEEDED
+            else -> UpstreamStatus.UPSTREAM_IS_GONE
+        }
+    }
+
+    fun push(refname: String) =
+        runInteractivePrintingCommand("git", "push", refname)
+    fun pushCreatingOrigin(refname: String) =
+        runInteractivePrintingCommand("git", "push", "--set-upstsream", "origin", refname)
+    fun rebase(refname: String, upstream: String) =
+        runInteractivePrintingCommand("git", "rebase", upstream, refname)
+    fun deleteBranchForcefully(branch: String) =
+        runInteractivePrintingCommand("git", "branch", "-D", branch)
+
+    private fun isAncestor(local: String, upstream: String) =
+        truthy("git", "merge-base", "--is-ancestor", local, upstream)
+
+    private fun branchExists(branch: String) =
+        truthy("git", "rev-parse", "--quiet", "--verify", branch)
+
+    fun getAllRemoteBranches(): List<String> {
+        return git("git", "branch", "--remotes", "--format=%(refname:short)").linesExceptTrailing()
     }
 
     fun showLog(branch: String) {
@@ -24,6 +63,12 @@ class GitRepo(val dir: Path) {
         git("git", "checkout", branch)
         runInteractive("zsh")
     }
+
+    private fun truthy(vararg command: String) =
+        ProcessBuilder(*command)
+            .directory(dir.toFile())
+            .start()
+            .waitFor() == 0
 
     private fun git(vararg command: String): String {
         val process = ProcessBuilder(*command)
@@ -39,6 +84,11 @@ class GitRepo(val dir: Path) {
         return output
     }
 
+    private fun runInteractivePrintingCommand(vararg command: String) {
+        println(command.joinToString(" "))
+        runInteractive(*command)
+    }
+
     private fun runInteractive(vararg command: String) {
         val process = ProcessBuilder(*command)
             .directory(dir.toFile())
@@ -46,5 +96,6 @@ class GitRepo(val dir: Path) {
             .start()
         process.waitFor()
     }
+
     private fun CharSequence.linesExceptTrailing() = lines().dropLastWhile { it.isEmpty() }
 }

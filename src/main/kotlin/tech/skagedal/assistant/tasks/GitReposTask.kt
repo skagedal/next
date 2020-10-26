@@ -6,12 +6,8 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import tech.skagedal.assistant.RunnableTask
 import tech.skagedal.assistant.TaskResult
-import tech.skagedal.assistant.commands.GitCleanCommand
 import tech.skagedal.assistant.git.GitRepo
 import tech.skagedal.assistant.isGloballyIgnored
-import tech.skagedal.assistant.ui.UserInterface
-import java.nio.file.FileSystem
-import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -21,7 +17,7 @@ class GitReposTask(val path: Path) : RunnableTask {
         object Dirty: GitResult()
         object NotGitRepository: GitResult()
         object NotDirectory: GitResult()
-        data class UnmergedBranches(val branches: List<String>): GitResult()
+        data class BranchesNeedingAction(val branches: List<String>): GitResult()
     }
 
     data class ResultWithPath(
@@ -46,12 +42,13 @@ class GitReposTask(val path: Path) : RunnableTask {
                     TaskResult.ShellActionRequired(path)
                 }
                 GitResult.Clean -> throw IllegalStateException()
-                is GitResult.UnmergedBranches -> {
+                is GitResult.BranchesNeedingAction -> {
                     System.err.println("Contains unmerged branches: ${it.path}")
-                    val gitClean = GitCleanCommand(FileSystems.getDefault(), UserInterface())
-                    val gitRepo = GitRepo(it.path)
-                    gitClean.handleBranches(gitRepo, result.branches)
-                    TaskResult.Proceed
+                    TaskResult.ShellActionRequired(path)
+                    // val gitClean = GitCleanCommand(FileSystems.getDefault(), UserInterface())
+                    // val gitRepo = GitRepo(it.path)
+                    // gitClean.handleBranches(gitRepo, result.branches)
+                    // TaskResult.Proceed
                 }
             }
         } ?: TaskResult.Proceed
@@ -74,10 +71,11 @@ class GitReposTask(val path: Path) : RunnableTask {
             return statusResult
         }
 
-        val notMergedBranches = GitRepo(dir).getNotMergedBranches()
-        if (notMergedBranches.isNotEmpty()) {
-            return GitResult.UnmergedBranches(notMergedBranches)
-        }
+        // TODO: Get all branches and check if any of them need action - something like
+        // val branches = GitRepo(dir).getBranches()
+        // if (branches.anyNeedAction()) {
+        //     return GitResult.BranchesNeedingAction(branches.needingAction())
+        // }
         return GitResult.Clean
     }
 
