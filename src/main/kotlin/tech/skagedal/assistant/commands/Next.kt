@@ -14,6 +14,7 @@ import tech.skagedal.assistant.tasks.GitReposTaskFactory
 import tech.skagedal.assistant.tasks.GmailCheckerTaskFactory
 import tech.skagedal.assistant.tasks.IntervalTaskFactory
 import tech.skagedal.assistant.tasksYmlFile
+import tech.skagedal.assistant.ui.UserInterface
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import kotlin.system.exitProcess
@@ -24,6 +25,7 @@ private const val CHANGE_DIRECTORY = 10
 
 class Next(
     val fileSystem: FileSystem,
+    val userInterface: UserInterface,
     val repository: Repository,
     val configurationLoader: ConfigurationLoader,
     val fileSystemLinterTaskFactory: FileSystemLinterTaskFactory,
@@ -39,7 +41,12 @@ class Next(
 
     fun runCommand(): Int {
         val pass = {}
-        val tasks = readTasks() ?: return 1
+        val tasks = readTasks()
+        if (tasks == null) {
+            userInterface.reportError("There was an error with the config file.")
+            return 1
+        }
+
         for (task in runnableTasks(tasks.tasks)) {
             val result = task.runTask()
             when (result) {
@@ -59,9 +66,11 @@ class Next(
             when (task) {
                 Task.FileSystemLintTask -> fileSystemLinterTaskFactory.standardTasks()
                 Task.EstablishWorkOrHobbyTask -> listOf(EstablishWorkOrHobbyTask())
-                is Task.CustomTask -> listOf(intervalTaskFactory.customShellTask(
-                    task.shell, task.id, task.whenExpression, task.directory
-                ))
+                is Task.CustomTask -> listOf(
+                    intervalTaskFactory.customShellTask(
+                        task.shell, task.id, task.whenExpression, task.directory
+                    )
+                )
                 is Task.BrewUpgradeTask -> listOf(intervalTaskFactory.brewUpgradeTask(task.whenExpression))
                 is Task.GmailTask -> listOf(gmailCheckerTaskFactory.task(task.account))
                 is Task.GitReposTask -> listOf(gitReposTaskFactory.task(task.directory))

@@ -40,4 +40,8 @@ class UserInterface {
     fun reportActionTaken(message: String) {
         println(message)
     }
+
+    fun reportError(message: String) {
+        println(message)
+    }
 }

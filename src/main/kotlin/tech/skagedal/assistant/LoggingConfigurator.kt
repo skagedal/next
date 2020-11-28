@@ -11,12 +11,15 @@ import ch.qos.logback.core.ConsoleAppender
 import ch.qos.logback.core.FileAppender
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder
 import ch.qos.logback.core.spi.ContextAwareBase
+import tech.skagedal.assistant.configuration.ProcessEnvironment
 import java.nio.file.FileSystems
 
 class LoggingConfigurator: ContextAwareBase(), Configurator {
     override fun configure(loggerContext: LoggerContext) {
         val rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME)
-        rootLogger.addAppender(createConsoleAppender(loggerContext))
+        if (ProcessEnvironment.DEBUG) {
+            rootLogger.addAppender(createConsoleAppender(loggerContext))
+        }
         rootLogger.addAppender(createFileAppender(loggerContext))
     }
 

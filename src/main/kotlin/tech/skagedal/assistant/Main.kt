@@ -39,6 +39,7 @@ fun main(args: Array<String>) {
     val fileSystem = FileSystems.getDefault()
     val repository = Repository(fileSystem)
     val configurationLoader = ConfigurationLoader()
+    val userInterface = UserInterface()
 
     val fileSystemLinter = FileSystemLinterTaskFactory(
         fileSystem,
@@ -60,6 +61,7 @@ fun main(args: Array<String>) {
 
     val nextCommand = Next(
         fileSystem,
+        userInterface,
         repository,
         configurationLoader,
         fileSystemLinter,
@@ -83,7 +85,7 @@ fun main(args: Array<String>) {
     val trackStartCommand = TrackStart(timeTracker)
     val trackStopCommand = TrackStop(timeTracker)
 
-    val gitCleanCommand = GitCleanCommand(fileSystem, UserInterface())
+    val gitCleanCommand = GitCleanCommand(fileSystem, userInterface)
 
     val simonsAssistant = SimonsAssistant(
         listOf(nextCommand, trackEditCommand, trackReportCommand, trackStartCommand, trackStopCommand, gitCleanCommand)
