@@ -16,11 +16,14 @@ class ProcessRunner {
 
     private fun runCommand(command: List<String>, directory: Path? = null) {
         printCommand(command)
-        ProcessBuilder(command)
+        val returnValue = ProcessBuilder(command)
             .apply { if (directory != null) directory(directory.toFile()) }
             .inheritIO()
             .start()
             .waitFor()
+        if (returnValue != 0) {
+            throw ProcessExitedUnsuccessfullyException(command, returnValue)
+        }
     }
 
     private fun printCommand(command: List<String>) {
