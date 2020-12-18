@@ -1,6 +1,7 @@
 package tech.skagedal.assistant.tasks
 
 import org.slf4j.LoggerFactory
+import tech.skagedal.assistant.ProcessExitedUnsuccessfullyException
 import tech.skagedal.assistant.Repository
 import tech.skagedal.assistant.RunnableTask
 import tech.skagedal.assistant.TaskResult
@@ -23,7 +24,11 @@ class IntervalTask(
         if (due.isDue) {
             logger.info("Performing $taskIdentifier")
             logger.debug("Performing $taskIdentifier, because ${due.reason}.")
-            doTheTask()
+            try {
+                doTheTask()
+            } catch (e: ProcessExitedUnsuccessfullyException) {
+                return TaskResult.ActionRequired
+            }
             repository.weJustDid(taskIdentifier)
         } else {
             logger.debug("Not performing $taskIdentifier, because ${due.reason}.")
