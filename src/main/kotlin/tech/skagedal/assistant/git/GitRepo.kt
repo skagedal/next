@@ -37,9 +37,9 @@ class GitRepo(val dir: Path) {
     }
 
     fun push(refname: String) =
-        runInteractivePrintingCommand("git", "push", refname)
+        runInteractivePrintingCommand("git", "push", "origin", refname)
     fun pushCreatingOrigin(refname: String) =
-        runInteractivePrintingCommand("git", "push", "--set-upstsream", "origin", refname)
+        runInteractivePrintingCommand("git", "push", "--set-upstream", "origin", refname)
     fun rebase(refname: String, upstream: String) =
         runInteractivePrintingCommand("git", "rebase", upstream, refname)
     fun deleteBranchForcefully(branch: String) =
