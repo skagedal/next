@@ -21,8 +21,7 @@ import java.nio.file.FileSystem
 class GitCleanCommand(val fileSystem: FileSystem, val userInterface: UserInterface) : CliktCommand(name = "git-clean") {
     override fun run() {
         val repo = GitRepo(fileSystem.getPath("."))
-        val branches = repo.getBranches()
-        branches.forEach { handle(repo, it) }
+        handle(repo, repo.getBranches())
     }
 
     enum class BranchAction(val description: String) {
@@ -33,6 +32,10 @@ class GitCleanCommand(val fileSystem: FileSystem, val userInterface: UserInterfa
         LOG("Show git log"),
         SHELL("Start a shell with branch checked out"),
         NOTHING("Do nothing")
+    }
+
+    fun handle(repo: GitRepo, branches: List<Branch>) {
+        branches.forEach { handle(repo, it) }
     }
 
     fun handle(repo: GitRepo, branch: Branch) {

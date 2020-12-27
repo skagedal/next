@@ -6,10 +6,13 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import tech.skagedal.assistant.RunnableTask
 import tech.skagedal.assistant.TaskResult
+import tech.skagedal.assistant.commands.GitCleanCommand
 import tech.skagedal.assistant.git.Branch
 import tech.skagedal.assistant.git.GitRepo
 import tech.skagedal.assistant.git.UpstreamStatus
 import tech.skagedal.assistant.isGloballyIgnored
+import tech.skagedal.assistant.ui.UserInterface
+import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -19,7 +22,7 @@ class GitReposTask(val path: Path) : RunnableTask {
         object Dirty: GitResult()
         object NotGitRepository: GitResult()
         object NotDirectory: GitResult()
-        data class BranchesNeedingAction(val branches: List<String>): GitResult()
+        data class BranchesNeedingAction(val branches: List<Branch>): GitResult()
     }
 
     data class ResultWithPath(
@@ -47,10 +50,10 @@ class GitReposTask(val path: Path) : RunnableTask {
                 is GitResult.BranchesNeedingAction -> {
                     System.err.println("Contains unmerged branches: ${it.path}")
                     TaskResult.ShellActionRequired(path)
-                    // val gitClean = GitCleanCommand(FileSystems.getDefault(), UserInterface())
-                    // val gitRepo = GitRepo(it.path)
-                    // gitClean.handleBranches(gitRepo, result.branches)
-                    // TaskResult.Proceed
+                    val gitClean = GitCleanCommand(FileSystems.getDefault(), UserInterface())
+                    val gitRepo = GitRepo(it.path)
+                    gitClean.handle(gitRepo, result.branches)
+                    TaskResult.Proceed
                 }
             }
         } ?: TaskResult.Proceed
@@ -75,7 +78,7 @@ class GitReposTask(val path: Path) : RunnableTask {
 
         val branchesNeedingAction = GitRepo(dir).getBranches().filter { it.needsAction() }
         if (branchesNeedingAction.isNotEmpty()) {
-            return GitResult.BranchesNeedingAction(branchesNeedingAction.map { it.refname })
+            return GitResult.BranchesNeedingAction(branchesNeedingAction)
         }
         return GitResult.Clean
     }
