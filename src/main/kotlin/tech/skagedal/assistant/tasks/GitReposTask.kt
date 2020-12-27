@@ -6,7 +6,9 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import tech.skagedal.assistant.RunnableTask
 import tech.skagedal.assistant.TaskResult
+import tech.skagedal.assistant.git.Branch
 import tech.skagedal.assistant.git.GitRepo
+import tech.skagedal.assistant.git.UpstreamStatus
 import tech.skagedal.assistant.isGloballyIgnored
 import java.nio.file.Files
 import java.nio.file.Path
@@ -71,11 +73,10 @@ class GitReposTask(val path: Path) : RunnableTask {
             return statusResult
         }
 
-        // TODO: Get all branches and check if any of them need action - something like
-        // val branches = GitRepo(dir).getBranches()
-        // if (branches.anyNeedAction()) {
-        //     return GitResult.BranchesNeedingAction(branches.needingAction())
-        // }
+        val branchesNeedingAction = GitRepo(dir).getBranches().filter { it.needsAction() }
+        if (branchesNeedingAction.isNotEmpty()) {
+            return GitResult.BranchesNeedingAction(branchesNeedingAction.map { it.refname })
+        }
         return GitResult.Clean
     }
 
@@ -96,3 +97,6 @@ class GitReposTask(val path: Path) : RunnableTask {
 }
 
 fun filesInDirectory(path: Path): List<Path> = Files.newDirectoryStream(path).use { it.toList() }
+
+private fun List<Branch>.anyNeedAction() = any { it.needsAction() }
+private fun Branch.needsAction() = upstream?.let { it.status != UpstreamStatus.IDENTICAL } ?: true
