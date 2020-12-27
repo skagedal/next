@@ -1,4 +1,4 @@
-function next() {
+function n() {
   simons-assistant next
   return_value=$?
   if [ $return_value -eq 10 ]; then
