@@ -60,8 +60,12 @@ class GitRepo(val dir: Path) {
     }
 
     fun checkoutBranchAndEnterShell(branch: String) {
-        git("git", "checkout", branch)
+        checkoutBranch(branch)
         runInteractive("zsh")
+    }
+
+    fun checkoutBranch(branch: String) {
+        git("git", "checkout", branch)
     }
 
     private fun truthy(vararg command: String) =

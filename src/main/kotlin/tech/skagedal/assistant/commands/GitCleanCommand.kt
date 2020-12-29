@@ -1,6 +1,7 @@
 package tech.skagedal.assistant.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
+import tech.skagedal.assistant.TaskResult
 import tech.skagedal.assistant.commands.GitCleanCommand.BranchAction.DELETE
 import tech.skagedal.assistant.commands.GitCleanCommand.BranchAction.LOG
 import tech.skagedal.assistant.commands.GitCleanCommand.BranchAction.NOTHING
@@ -17,6 +18,7 @@ import tech.skagedal.assistant.git.UpstreamStatus.UPSTREAM_IS_AHEAD_OF_LOCAL
 import tech.skagedal.assistant.git.UpstreamStatus.UPSTREAM_IS_GONE
 import tech.skagedal.assistant.ui.UserInterface
 import java.nio.file.FileSystem
+import java.nio.file.Path
 
 class GitCleanCommand(val fileSystem: FileSystem, val userInterface: UserInterface) : CliktCommand(name = "git-clean") {
     override fun run() {
@@ -30,7 +32,7 @@ class GitCleanCommand(val fileSystem: FileSystem, val userInterface: UserInterfa
         REBASE("Rebase onto origin"),
         DELETE("Delete it"),
         LOG("Show git log"),
-        SHELL("Start a shell with branch checked out"),
+        SHELL("Exit to shell with branch checked out"),
         NOTHING("Do nothing")
     }
 
@@ -38,13 +40,15 @@ class GitCleanCommand(val fileSystem: FileSystem, val userInterface: UserInterfa
         branches.forEach { handle(repo, it) }
     }
 
-    fun handle(repo: GitRepo, branch: Branch) {
-        branch.upstream?.let { upstream ->
+    fun handle(repo: GitRepo, branch: Branch): TaskResult {
+        return branch.upstream?.let { upstream ->
             when (upstream.status) {
                 IDENTICAL ->
-                    return
-                UPSTREAM_IS_AHEAD_OF_LOCAL ->
+                    TaskResult.Proceed
+                UPSTREAM_IS_AHEAD_OF_LOCAL -> {
                     repo.rebase(branch.refname, upstream.name)
+                    TaskResult.Proceed
+                }
                 LOCAL_IS_AHEAD_OF_UPSTREAM ->
                     selectAction(
                         repo, branch, "Branch is ahead of upstream", listOf(
@@ -58,53 +62,71 @@ class GitCleanCommand(val fileSystem: FileSystem, val userInterface: UserInterfa
                         )
                     )
                 UPSTREAM_IS_GONE ->
-                    selectAction(repo, branch, "Upstream is set, but it is gone", listOf(
-                        DELETE, LOG, SHELL, NOTHING
-                    ))
+                    selectAction(
+                        repo, branch, "Upstream is set, but it is gone", listOf(
+                            DELETE, LOG, SHELL, NOTHING
+                        )
+                    )
             }
-        } ?: selectAction(repo, branch, "Branch has no upstream", listOf(
-            PUSH_CREATING_ORIGIN, DELETE, LOG, SHELL, NOTHING
-        ))
+        } ?: selectAction(
+            repo, branch, "Branch has no upstream", listOf(
+                PUSH_CREATING_ORIGIN, DELETE, LOG, SHELL, NOTHING
+            )
+        )
     }
 
-    private fun selectAction(repo: GitRepo, branch: Branch, message: String, actions: List<BranchAction>) {
-        var actionIsHandled = false
-        while (!actionIsHandled) {
+    private fun selectAction(repo: GitRepo, branch: Branch, message: String, actions: List<BranchAction>): TaskResult {
+        while (true) {
             val action = userInterface.pickOne<BranchAction>("${branch.refname}: $message") {
                 for (action in actions) {
                     choice(action, action.description)
                 }
             }
-            actionIsHandled = performAction(repo, branch, action)
+            val actionResult = performAction(repo, branch, action)
+            when (actionResult) {
+                ActionResult.Handled ->
+                    return TaskResult.Proceed
+                ActionResult.NotHandled ->
+                    continue
+                is ActionResult.ExitToShell ->
+                    return TaskResult.ShellActionRequired(actionResult.directory)
+            }
         }
     }
 
-    private fun performAction(repo: GitRepo, branch: Branch, action: BranchAction): Boolean =
+    sealed class ActionResult {
+        object Handled: ActionResult()
+        object NotHandled: ActionResult()
+        data class ExitToShell(val directory: Path): ActionResult()
+    }
+
+    private fun performAction(repo: GitRepo, branch: Branch, action: BranchAction): ActionResult =
         when (action) {
             PUSH -> {
                 repo.push(branch.refname)
-                true
+                ActionResult.Handled
             }
             PUSH_CREATING_ORIGIN -> {
                 repo.pushCreatingOrigin(branch.refname)
-                true
+                ActionResult.Handled
             }
             REBASE -> {
                 repo.rebase(branch.refname, branch.upstream!!.name)
-                true
+                ActionResult.Handled
             }
             DELETE -> {
                 repo.deleteBranchForcefully(branch.refname)
-                true
+                ActionResult.Handled
             }
             LOG -> {
                 repo.showLog(branch.refname)
-                false
+                ActionResult.NotHandled
             }
             SHELL -> {
-                repo.checkoutBranchAndEnterShell(branch.refname)
-                false
+                // TODO: Should just check out branch and exit
+                repo.checkoutBranch(branch.refname)
+                ActionResult.ExitToShell(repo.dir)
             }
-            NOTHING -> true
+            NOTHING -> ActionResult.Handled
         }
 }
