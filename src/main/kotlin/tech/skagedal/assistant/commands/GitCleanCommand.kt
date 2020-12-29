@@ -115,6 +115,7 @@ class GitCleanCommand(val fileSystem: FileSystem, val userInterface: UserInterfa
                 ActionResult.Handled
             }
             DELETE -> {
+                repo.checkoutFirstAvailableBranch(listOf<String>("release", "master", "main"))
                 repo.deleteBranchForcefully(branch.refname)
                 ActionResult.Handled
             }

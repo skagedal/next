@@ -68,6 +68,17 @@ class GitRepo(val dir: Path) {
         git("git", "checkout", branch)
     }
 
+    fun checkoutFirstAvailableBranch(branches: List<String>) {
+        if (branches.isEmpty()) {
+            throw BranchNotAvailable()
+        }
+        try {
+            checkoutBranch(branches.first())
+        } catch (e: NonZeroGitExitCode) {
+            checkoutFirstAvailableBranch(branches.drop(1))
+        }
+    }
+
     private fun truthy(vararg command: String) =
         ProcessBuilder(*command)
             .directory(dir.toFile())
