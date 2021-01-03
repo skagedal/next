@@ -3,6 +3,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 plugins {
     application
     kotlin("jvm") version "1.4.0"
+    id("io.micronaut.library") version "1.1.0"
 }
 
 repositories {
@@ -33,9 +34,12 @@ dependencies {
 
 application {
     mainClassName = "tech.skagedal.assistant.MainKt"
-
 }
 
+micronaut {
+    version("2.2.2")
+}
+ssk
 tasks {
     test {
         useJUnitPlatform()
