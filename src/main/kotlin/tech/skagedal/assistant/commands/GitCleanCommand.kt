@@ -77,7 +77,7 @@ class GitCleanCommand(val fileSystem: FileSystem, val userInterface: UserInterfa
 
     private fun selectAction(repo: GitRepo, branch: Branch, message: String, actions: List<BranchAction>): TaskResult {
         while (true) {
-            val action = userInterface.pickOne<BranchAction>("${repo.dir}:${branch.refname}: $message") {
+            val action = userInterface.pickOne<BranchAction>("${repo.dir.fileName}:${branch.refname}: $message") {
                 for (action in actions) {
                     choice(action, action.description)
                 }
