@@ -56,12 +56,10 @@ class GitReposTask(val path: Path) : RunnableTask {
             }
             GitResult.Clean -> throw IllegalStateException()
             is GitResult.BranchesNeedingAction -> {
-                System.err.println("Contains unmerged branches: ${it.path}")
-                TaskResult.ShellActionRequired(path)
+                System.err.println("Has branches needing action: ${it.path}")
                 val gitClean = GitCleanCommand(FileSystems.getDefault(), UserInterface())
                 val gitRepo = GitRepo(it.path)
                 gitClean.handle(gitRepo, result.branches)
-                TaskResult.Proceed
             }
         }
     }

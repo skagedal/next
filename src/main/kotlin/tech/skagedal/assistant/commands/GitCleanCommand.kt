@@ -36,9 +36,13 @@ class GitCleanCommand(val fileSystem: FileSystem, val userInterface: UserInterfa
         NOTHING("Do nothing")
     }
 
-    fun handle(repo: GitRepo, branches: List<Branch>) {
-        branches.forEach { handle(repo, it) }
-    }
+    fun handle(repo: GitRepo, branches: List<Branch>): TaskResult =
+        branches.fold(TaskResult.Proceed as TaskResult) { result, branch ->
+            when(result) {
+                is TaskResult.Proceed -> handle(repo, branch)
+                else -> result
+            }
+        }
 
     fun handle(repo: GitRepo, branch: Branch): TaskResult {
         return branch.upstream?.let { upstream ->
@@ -124,7 +128,6 @@ class GitCleanCommand(val fileSystem: FileSystem, val userInterface: UserInterfa
                 ActionResult.NotHandled
             }
             SHELL -> {
-                // TODO: Should just check out branch and exit
                 repo.checkoutBranch(branch.refname)
                 ActionResult.ExitToShell(repo.dir)
             }
