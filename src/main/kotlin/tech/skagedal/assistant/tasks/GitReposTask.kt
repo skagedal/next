@@ -31,32 +31,40 @@ class GitReposTask(val path: Path) : RunnableTask {
     )
 
     override fun runTask() = fetchAllResults()
-        .find { it.result != GitResult.Clean }?.let {
-            val result = it.result
-            when (result) {
-                GitResult.Dirty -> {
-                    System.err.println("Dirty git repository")
-                    TaskResult.ShellActionRequired(it.path)
-                }
-                GitResult.NotGitRepository -> {
-                    System.err.println("Not a git repository")
-                    TaskResult.ShellActionRequired(it.path)
-                }
-                GitResult.NotDirectory -> {
-                    System.err.println("Not a directory: ${it.path}")
-                    TaskResult.ShellActionRequired(path)
-                }
-                GitResult.Clean -> throw IllegalStateException()
-                is GitResult.BranchesNeedingAction -> {
-                    System.err.println("Contains unmerged branches: ${it.path}")
-                    TaskResult.ShellActionRequired(path)
-                    val gitClean = GitCleanCommand(FileSystems.getDefault(), UserInterface())
-                    val gitRepo = GitRepo(it.path)
-                    gitClean.handle(gitRepo, result.branches)
-                    TaskResult.Proceed
-                }
+        .filter { it.result != GitResult.Clean }
+        .fold(TaskResult.Proceed as TaskResult) { taskResult, repoResult ->
+            when(taskResult) {
+                is TaskResult.Proceed -> handleNonCleanRepoResult(repoResult)
+                else -> taskResult
             }
-        } ?: TaskResult.Proceed
+        }
+
+    private fun handleNonCleanRepoResult(it: ResultWithPath): TaskResult {
+        val result = it.result
+        return when (result) {
+            GitResult.Dirty -> {
+                System.err.println("Dirty git repository")
+                TaskResult.ShellActionRequired(it.path)
+            }
+            GitResult.NotGitRepository -> {
+                System.err.println("Not a git repository")
+                TaskResult.ShellActionRequired(it.path)
+            }
+            GitResult.NotDirectory -> {
+                System.err.println("Not a directory: ${it.path}")
+                TaskResult.ShellActionRequired(path)
+            }
+            GitResult.Clean -> throw IllegalStateException()
+            is GitResult.BranchesNeedingAction -> {
+                System.err.println("Contains unmerged branches: ${it.path}")
+                TaskResult.ShellActionRequired(path)
+                val gitClean = GitCleanCommand(FileSystems.getDefault(), UserInterface())
+                val gitRepo = GitRepo(it.path)
+                gitClean.handle(gitRepo, result.branches)
+                TaskResult.Proceed
+            }
+        }
+    }
 
     private fun fetchAllResults() =
         runBlocking {
