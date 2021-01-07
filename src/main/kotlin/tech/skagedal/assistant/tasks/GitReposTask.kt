@@ -7,6 +7,7 @@ import kotlinx.coroutines.runBlocking
 import tech.skagedal.assistant.RunnableTask
 import tech.skagedal.assistant.TaskResult
 import tech.skagedal.assistant.commands.GitCleanCommand
+import tech.skagedal.assistant.general.filesInDirectory
 import tech.skagedal.assistant.git.Branch
 import tech.skagedal.assistant.git.GitRepo
 import tech.skagedal.assistant.git.UpstreamStatus
@@ -66,7 +67,7 @@ class GitReposTask(val path: Path) : RunnableTask {
 
     private fun fetchAllResults() =
         runBlocking {
-            filesInDirectory(path).map {
+            path.filesInDirectory().map {
                 async(Dispatchers.IO) {
                     ResultWithPath(it, repoResult(it))
                 }
@@ -104,8 +105,6 @@ class GitReposTask(val path: Path) : RunnableTask {
         return if (nonEmptyGitStatusResult) GitResult.Dirty else GitResult.Clean
     }
 }
-
-fun filesInDirectory(path: Path): List<Path> = Files.newDirectoryStream(path).use { it.toList() }
 
 private fun List<Branch>.anyNeedAction() = any { it.needsAction() }
 private fun Branch.needsAction() = upstream?.let { it.status != UpstreamStatus.IDENTICAL } ?: true

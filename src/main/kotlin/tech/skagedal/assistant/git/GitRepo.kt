@@ -45,6 +45,8 @@ class GitRepo(val dir: Path) {
     fun deleteBranchForcefully(branch: String) =
         runInteractivePrintingCommand("git", "branch", "-D", branch)
 
+    fun fetch() = git("git", "fetch")
+
     private fun isAncestor(local: String, upstream: String) =
         truthy("git", "merge-base", "--is-ancestor", local, upstream)
 

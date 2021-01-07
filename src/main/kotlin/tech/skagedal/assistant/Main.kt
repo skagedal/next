@@ -1,14 +1,9 @@
 package tech.skagedal.assistant
 
-import ch.qos.logback.classic.Level
-import ch.qos.logback.classic.Logger
-import ch.qos.logback.classic.LoggerContext
-import ch.qos.logback.classic.encoder.PatternLayoutEncoder
-import ch.qos.logback.classic.spi.ILoggingEvent
-import ch.qos.logback.core.FileAppender
 import com.google.api.client.json.jackson2.JacksonFactory
 import org.slf4j.LoggerFactory
 import tech.skagedal.assistant.commands.GitCleanCommand
+import tech.skagedal.assistant.commands.GitFetchCommand
 import tech.skagedal.assistant.commands.Next
 import tech.skagedal.assistant.commands.SimonsAssistant
 import tech.skagedal.assistant.commands.TrackEdit
@@ -16,6 +11,7 @@ import tech.skagedal.assistant.commands.TrackReport
 import tech.skagedal.assistant.commands.TrackStart
 import tech.skagedal.assistant.commands.TrackStop
 import tech.skagedal.assistant.configuration.ConfigurationLoader
+import tech.skagedal.assistant.services.GitFetchService
 import tech.skagedal.assistant.tasks.FileSystemLinterTaskFactory
 import tech.skagedal.assistant.tasks.GitReposTaskFactory
 import tech.skagedal.assistant.tasks.GmailCheckerTaskFactory
@@ -85,10 +81,20 @@ fun main(args: Array<String>) {
     val trackStartCommand = TrackStart(timeTracker)
     val trackStopCommand = TrackStop(timeTracker)
 
+    val gitFetchService = GitFetchService(fileSystem, userInterface)
+    val gitFetchCommand = GitFetchCommand(fileSystem, gitFetchService)
     val gitCleanCommand = GitCleanCommand(fileSystem, userInterface)
 
     val simonsAssistant = SimonsAssistant(
-        listOf(nextCommand, trackEditCommand, trackReportCommand, trackStartCommand, trackStopCommand, gitCleanCommand)
+        listOf(
+            nextCommand,
+            trackEditCommand,
+            trackReportCommand,
+            trackStartCommand,
+            trackStopCommand,
+            gitCleanCommand,
+            gitFetchCommand
+        )
     )
 
     simonsAssistant.main(args)
