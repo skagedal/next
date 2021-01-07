@@ -16,6 +16,6 @@ class GitFetchService(private val fileSystem: FileSystem, private val userInterf
 
     private fun fetch(repo: GitRepo) {
         println("Fetching ${repo.dir.fileName}...")
-        repo.fetch()
+        repo.fetchAndPrune()
     }
 }
