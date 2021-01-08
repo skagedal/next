@@ -45,7 +45,8 @@ class GitRepo(val dir: Path) {
     fun deleteBranchForcefully(branch: String) =
         runInteractivePrintingCommand("git", "branch", "-D", branch)
 
-    fun fetchAndPrune() = git("git", "fetch", "--prune", "--prune-tags")
+    // For some reason --prune-tags causes problems with me in some repos that I haven't yet figured out.
+    fun fetchAndPrune() = git("git", "fetch", "--prune" /*, "--prune-tags" */)
 
     private fun isAncestor(local: String, upstream: String) =
         truthy("git", "merge-base", "--is-ancestor", local, upstream)
