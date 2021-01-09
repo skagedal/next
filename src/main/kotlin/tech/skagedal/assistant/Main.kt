@@ -1,9 +1,11 @@
 package tech.skagedal.assistant
 
+import com.github.ajalt.clikt.core.subcommands
 import com.google.api.client.json.jackson2.JacksonFactory
 import org.slf4j.LoggerFactory
 import tech.skagedal.assistant.commands.GitCleanCommand
 import tech.skagedal.assistant.commands.GitFetchCommand
+import tech.skagedal.assistant.commands.GitReposCommand
 import tech.skagedal.assistant.commands.Next
 import tech.skagedal.assistant.commands.SimonsAssistant
 import tech.skagedal.assistant.commands.TrackEdit
@@ -12,6 +14,7 @@ import tech.skagedal.assistant.commands.TrackStart
 import tech.skagedal.assistant.commands.TrackStop
 import tech.skagedal.assistant.configuration.ConfigurationLoader
 import tech.skagedal.assistant.services.GitFetchService
+import tech.skagedal.assistant.services.GitReposService
 import tech.skagedal.assistant.tasks.FileSystemLinterTaskFactory
 import tech.skagedal.assistant.tasks.GitReposTaskFactory
 import tech.skagedal.assistant.tasks.GmailCheckerTaskFactory
@@ -31,11 +34,24 @@ fun main(args: Array<String>) {
 
     Main.logger.info("Starting simons-assistant")
 
+    // Basic dependencies, repositories and services
+
     val processRunner = ProcessRunner()
     val fileSystem = FileSystems.getDefault()
     val repository = Repository(fileSystem)
     val configurationLoader = ConfigurationLoader()
     val userInterface = UserInterface()
+    val trackerSerializer = Serializer()
+    val trackerRepository = tech.skagedal.assistant.tracker.Repository(
+        fileSystem,
+        trackerSerializer
+    )
+    val timeTracker = TimeTracker(trackerRepository, trackerSerializer, 60 * 8)
+
+    val gitFetchService = GitFetchService(fileSystem, userInterface)
+    val gitReposService = GitReposService(fileSystem)
+
+    // Tasks and task factories
 
     val fileSystemLinter = FileSystemLinterTaskFactory(
         fileSystem,
@@ -52,8 +68,11 @@ fun main(args: Array<String>) {
         JacksonFactory.getDefaultInstance()
     )
     val gitReposTaskFactory = GitReposTaskFactory(
-        fileSystem
+        fileSystem,
+        gitReposService
     )
+
+    // Commands
 
     val nextCommand = Next(
         fileSystem,
@@ -66,13 +85,6 @@ fun main(args: Array<String>) {
         gitReposTaskFactory
     )
 
-    val trackerSerializer = Serializer()
-    val trackerRepository = tech.skagedal.assistant.tracker.Repository(
-        fileSystem,
-        trackerSerializer
-    )
-    val timeTracker = TimeTracker(trackerRepository, trackerSerializer, 60 * 8)
-
     val trackEditCommand = TrackEdit(
         trackerRepository,
         processRunner
@@ -81,20 +93,19 @@ fun main(args: Array<String>) {
     val trackStartCommand = TrackStart(timeTracker)
     val trackStopCommand = TrackStop(timeTracker)
 
-    val gitFetchService = GitFetchService(fileSystem, userInterface)
     val gitFetchCommand = GitFetchCommand(fileSystem, gitFetchService)
     val gitCleanCommand = GitCleanCommand(fileSystem, userInterface)
+    val gitReposCommand = GitReposCommand(fileSystem, gitReposService)
 
-    val simonsAssistant = SimonsAssistant(
-        listOf(
-            nextCommand,
-            trackEditCommand,
-            trackReportCommand,
-            trackStartCommand,
-            trackStopCommand,
-            gitCleanCommand,
-            gitFetchCommand
-        )
+    val simonsAssistant = SimonsAssistant().subcommands(
+        nextCommand,
+        trackEditCommand,
+        trackReportCommand,
+        trackStartCommand,
+        trackStopCommand,
+        gitCleanCommand,
+        gitFetchCommand,
+        gitReposCommand
     )
 
     simonsAssistant.main(args)
