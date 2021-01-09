@@ -2,9 +2,15 @@
 
 set -e
 
+TOOL=simons-assistant
 BIN=${HOME}/local/bin
-SHELL_SCRIPTS=${HOME}/.oh-my-zsh/custom
+BUILT_BINARY=`pwd`/build/install/${TOOL}/bin/${TOOL}
 
 ./gradlew install
-ln -fs `pwd`/build/install/simons-assistant/bin/simons-assistant ${BIN}/simons-assistant
-ln -fs `pwd`/shell/simons-assistant.zsh ${SHELL_SCRIPTS}/simons-assistant.zsh
+ln -fs ${BUILT_BINARY} ${BIN}/${TOOL}
+
+if [ -d ~/.oh-my-zsh ]; then
+    _SIMONS_ASSISTANT_COMPLETE=zsh ${BUILT_BINARY} > ~/.oh-my-zsh/custom/simons-assistant.zsh
+    ln -fs `pwd`/shell/simons-assistant.zsh ~/.oh-my-zsh/custom/simons-assistant-function.zsh
+fi
+
