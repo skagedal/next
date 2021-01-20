@@ -48,6 +48,7 @@ class Next(
         }
 
         for (task in runnableTasks(tasks.tasks)) {
+            logger.info("Running task {}", task)
             val result = task.runTask()
             when (result) {
                 TaskResult.Proceed -> pass()
