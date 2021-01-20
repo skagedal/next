@@ -36,7 +36,9 @@ class Next(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     override fun run() {
-        exitProcess(runCommand())
+        val exitResult = runCommand()
+        logger.info("next command completed, exiting with code {}", exitResult)
+        exitProcess(exitResult)
     }
 
     fun runCommand(): Int {
