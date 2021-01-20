@@ -1,5 +1,6 @@
 package tech.skagedal.assistant.commands
 
+import ch.qos.logback.classic.LoggerContext
 import com.github.ajalt.clikt.core.CliktCommand
 import org.slf4j.LoggerFactory
 import tech.skagedal.assistant.Repository
@@ -38,6 +39,7 @@ class Next(
     override fun run() {
         val exitResult = runCommand()
         logger.info("next command completed, exiting with code {}", exitResult)
+        (LoggerFactory.getILoggerFactory() as LoggerContext).executorService.shutdown()
         exitProcess(exitResult)
     }
 
