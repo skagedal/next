@@ -108,5 +108,5 @@ internal class SerializerTest {
     fun Serializer.parseDocument(string: String): Document =
         StringReader(string).use { parseDocument(it) }
 
-    private fun createRepository() = Repository(FileSystems.getDefault(), Serializer())
+    private fun createRepository() = TrackerRepository(FileSystems.getDefault(), Serializer())
 }

@@ -3,6 +3,7 @@ package tech.skagedal.assistant.commands
 import ch.qos.logback.classic.LoggerContext
 import com.github.ajalt.clikt.core.CliktCommand
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 import tech.skagedal.assistant.Repository
 import tech.skagedal.assistant.RunnableTask
 import tech.skagedal.assistant.TaskResult
@@ -24,7 +25,8 @@ private const val EXIT_NORMAL = 0
 private const val EXIT_ERROR = 1
 private const val CHANGE_DIRECTORY = 10
 
-class Next(
+@Component
+class NextCommand(
     val fileSystem: FileSystem,
     val userInterface: UserInterface,
     val repository: Repository,
@@ -33,7 +35,7 @@ class Next(
     val intervalTaskFactory: IntervalTaskFactory,
     val gmailCheckerTaskFactory: GmailCheckerTaskFactory,
     val gitReposTaskFactory: GitReposTaskFactory
-) : CliktCommand() {
+) : CliktCommand(name = "next") {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     override fun run() {

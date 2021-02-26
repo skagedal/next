@@ -1,8 +1,10 @@
 package tech.skagedal.assistant
 
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 import java.nio.file.Path
 
+@Component
 class ProcessRunner {
     private val logger = LoggerFactory.getLogger(javaClass)
 

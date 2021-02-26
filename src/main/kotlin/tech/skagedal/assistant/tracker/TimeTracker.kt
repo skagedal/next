@@ -1,5 +1,6 @@
 package tech.skagedal.assistant.tracker
 
+import org.springframework.stereotype.Service
 import java.nio.file.Files
 import java.time.Duration
 import java.time.LocalDate
@@ -10,13 +11,14 @@ class TrackerFileAlreadyHasOpenShiftException(override val message: String?) : R
 class TrackerFileHasNoOpenShiftOnThatDayException(override val message: String?) : RuntimeException(message)
 class TrackerFileHasMultipleOpenShiftsInOneDayException(override val message: String?) : RuntimeException(message)
 
+@Service
 class TimeTracker(
-    private val repository: Repository,
+    private val trackerRepository: TrackerRepository,
     private val serializer: Serializer,
-    private val standardWorkDayMinutes: Long
+    private val standardWorkDayMinutes: Long = 60 * 8
 ) {
     fun weekReportForDate(date: LocalDate): WeekReport {
-        val path = repository.weekTrackerFileCreateIfNeeded(date)
+        val path = trackerRepository.weekTrackerFileCreateIfNeeded(date)
         val document = Files.newBufferedReader(path).use { serializer.parseDocument(it) }
         val currentTime = LocalTime.now()
 
@@ -53,14 +55,14 @@ class TimeTracker(
         }
 
     fun startTracking(date: LocalDate, time: LocalTime) {
-        val path = repository.weekTrackerFileCreateIfNeeded(date)
+        val path = trackerRepository.weekTrackerFileCreateIfNeeded(date)
         val document = Files.newBufferedReader(path).use { serializer.parseDocument(it) }
         val newDocument = documentWithTrackingStarted(document, date, time)
         Files.newBufferedWriter(path).use { serializer.writeDocument(newDocument, it) }
     }
 
     fun stopTracking(date: LocalDate, time: LocalTime) {
-        val path = repository.pathForWeekTrackerFile(date)
+        val path = trackerRepository.pathForWeekTrackerFile(date)
         val document = Files.newBufferedReader(path).use { serializer.parseDocument(it) }
         val newDocument = documentWithTrackingStopped(document, date, time)
         Files.newBufferedWriter(path).use { serializer.writeDocument(newDocument, it) }

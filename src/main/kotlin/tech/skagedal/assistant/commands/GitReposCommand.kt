@@ -3,9 +3,11 @@ package tech.skagedal.assistant.commands
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.split
+import org.springframework.stereotype.Component
 import tech.skagedal.assistant.services.GitReposService
 import java.nio.file.FileSystem
 
+@Component
 class GitReposCommand(
     private val fileSystem: FileSystem,
     private val gitReposService: GitReposService

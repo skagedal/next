@@ -3,7 +3,9 @@ package tech.skagedal.assistant.ui
 import de.codeshelf.consoleui.prompt.ConsolePrompt
 import de.codeshelf.consoleui.prompt.ListResult
 import org.fusesource.jansi.AnsiConsole
+import org.springframework.stereotype.Component
 
+@Component
 class UserInterface {
     class Choices<T>() {
         val choices: MutableList<Pair<T, String>> = mutableListOf()

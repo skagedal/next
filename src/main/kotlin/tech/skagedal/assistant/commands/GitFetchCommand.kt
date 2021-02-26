@@ -1,9 +1,11 @@
 package tech.skagedal.assistant.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
+import org.springframework.stereotype.Component
 import tech.skagedal.assistant.services.GitFetchService
 import java.nio.file.FileSystem
 
+@Component
 class GitFetchCommand(
     private val fileSystem: FileSystem,
     private val gitFetchService: GitFetchService

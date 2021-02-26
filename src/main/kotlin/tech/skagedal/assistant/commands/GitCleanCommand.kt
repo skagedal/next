@@ -1,6 +1,7 @@
 package tech.skagedal.assistant.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
+import org.springframework.stereotype.Component
 import tech.skagedal.assistant.TaskResult
 import tech.skagedal.assistant.commands.GitCleanCommand.BranchAction.DELETE
 import tech.skagedal.assistant.commands.GitCleanCommand.BranchAction.LOG
@@ -20,6 +21,7 @@ import tech.skagedal.assistant.ui.UserInterface
 import java.nio.file.FileSystem
 import java.nio.file.Path
 
+@Component
 class GitCleanCommand(val fileSystem: FileSystem, val userInterface: UserInterface) : CliktCommand(name = "git-clean") {
     override fun run() {
         val repo = GitRepo(fileSystem.getPath("."))

@@ -1,5 +1,6 @@
 package tech.skagedal.assistant.tracker
 
+import org.springframework.stereotype.Repository
 import tech.skagedal.assistant.assistantDataDirectory
 import java.nio.file.FileAlreadyExistsException
 import java.nio.file.FileSystem
@@ -36,7 +37,8 @@ data class Document(
     val days: List<Day>
 )
 
-class Repository(
+@Repository
+class TrackerRepository(
     val fileSystem: FileSystem,
     val serializer: Serializer
 ) {

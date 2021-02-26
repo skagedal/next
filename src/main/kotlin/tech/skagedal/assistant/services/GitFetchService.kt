@@ -1,5 +1,6 @@
 package tech.skagedal.assistant.services
 
+import org.springframework.stereotype.Service
 import tech.skagedal.assistant.general.filesInDirectory
 import tech.skagedal.assistant.git.GitRepo
 import tech.skagedal.assistant.ui.UserInterface
@@ -7,6 +8,7 @@ import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
 
+@Service
 class GitFetchService(private val fileSystem: FileSystem, private val userInterface: UserInterface) {
     fun fetchAllGitRepos(path: Path) =
         path.filesInDirectory()

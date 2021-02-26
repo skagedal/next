@@ -3,7 +3,7 @@ package tech.skagedal.assistant.commands
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-internal class TrackReportTest {
+internal class TrackReportCommandTest {
     @Test
     internal fun `test formatting`() {
         val intHour: Int = 1

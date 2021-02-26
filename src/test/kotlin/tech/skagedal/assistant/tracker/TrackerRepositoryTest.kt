@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 import java.nio.file.FileSystems
 import java.time.LocalDate
 
-internal class RepositoryTest {
+internal class TrackerRepositoryTest {
     private val restoredHome = System.getProperty("user.home")
 
     @BeforeEach
@@ -67,5 +67,5 @@ internal class RepositoryTest {
         )
     }
 
-    private fun createRepository() = Repository(FileSystems.getDefault(), Serializer())
+    private fun createRepository() = TrackerRepository(FileSystems.getDefault(), Serializer())
 }

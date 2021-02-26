@@ -352,7 +352,7 @@ internal class TimeTrackerTest {
     private fun createTimeTracker(): TimeTracker {
         val serializer = Serializer()
         val timeTracker = TimeTracker(
-            Repository(FileSystems.getDefault(), serializer),
+            TrackerRepository(FileSystems.getDefault(), serializer),
             serializer,
             60 * 8
         )

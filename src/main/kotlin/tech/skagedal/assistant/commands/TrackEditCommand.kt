@@ -1,17 +1,18 @@
 package tech.skagedal.assistant.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
+import org.springframework.stereotype.Component
 import tech.skagedal.assistant.ProcessRunner
-import tech.skagedal.assistant.tracker.Repository
-import tech.skagedal.assistant.tracker.Serializer
+import tech.skagedal.assistant.tracker.TrackerRepository
 import java.time.LocalDate
 
-class TrackEdit(
-    val repository: Repository,
+@Component
+class TrackEditCommand(
+    val trackerRepository: TrackerRepository,
     val processRunner: ProcessRunner
 ) : CliktCommand(name = "track-edit") {
     override fun run() {
-        val path = repository.weekTrackerFileCreateIfNeeded(LocalDate.now())
+        val path = trackerRepository.weekTrackerFileCreateIfNeeded(LocalDate.now())
         processRunner.runEditor(path)
     }
 }

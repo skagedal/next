@@ -1,5 +1,6 @@
 package tech.skagedal.assistant.tracker
 
+import org.springframework.stereotype.Component
 import tech.skagedal.assistant.general.matcherIfMatches
 import tech.skagedal.assistant.general.segment
 import tech.skagedal.assistant.general.splitSublists
@@ -16,6 +17,7 @@ import java.util.Locale
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
+@Component
 class Serializer {
     private val formatter = DateTimeFormatterBuilder()
         .appendValue(ChronoField.HOUR_OF_DAY, 2)

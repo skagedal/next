@@ -3,15 +3,17 @@ package tech.skagedal.assistant
 import com.github.ajalt.clikt.core.subcommands
 import com.google.api.client.json.jackson2.JacksonFactory
 import org.slf4j.LoggerFactory
+import org.springframework.context.ApplicationContext
+import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import tech.skagedal.assistant.commands.GitCleanCommand
 import tech.skagedal.assistant.commands.GitFetchCommand
 import tech.skagedal.assistant.commands.GitReposCommand
-import tech.skagedal.assistant.commands.Next
+import tech.skagedal.assistant.commands.NextCommand
 import tech.skagedal.assistant.commands.SimonsAssistant
-import tech.skagedal.assistant.commands.TrackEdit
-import tech.skagedal.assistant.commands.TrackReport
-import tech.skagedal.assistant.commands.TrackStart
-import tech.skagedal.assistant.commands.TrackStop
+import tech.skagedal.assistant.commands.TrackEditCommand
+import tech.skagedal.assistant.commands.TrackReportCommand
+import tech.skagedal.assistant.commands.TrackStartCommand
+import tech.skagedal.assistant.commands.TrackStopCommand
 import tech.skagedal.assistant.configuration.ConfigurationLoader
 import tech.skagedal.assistant.services.GitFetchService
 import tech.skagedal.assistant.services.GitReposService
@@ -21,6 +23,7 @@ import tech.skagedal.assistant.tasks.GmailCheckerTaskFactory
 import tech.skagedal.assistant.tasks.IntervalTaskFactory
 import tech.skagedal.assistant.tracker.Serializer
 import tech.skagedal.assistant.tracker.TimeTracker
+import tech.skagedal.assistant.tracker.TrackerRepository
 import tech.skagedal.assistant.ui.UserInterface
 import java.nio.file.FileSystems
 
@@ -28,11 +31,21 @@ private object Main {
     val logger = LoggerFactory.getLogger(javaClass)
 }
 
+private fun createApplicationContext(): ApplicationContext =
+    AnnotationConfigApplicationContext(Config::class.java).apply {
+        scan(Main.javaClass.packageName)
+        registerShutdownHook()
+    }
+
+inline fun <reified T> ApplicationContext.bean() : T = getBean(T::class.java)
+
 fun main(args: Array<String>) {
     // Logging is configured in LoggingConfigurator, which logback finds because of the file
     // META-INF.services.ch.qos.logback.classic.spi.Configurator.
 
     Main.logger.info("Starting simons-assistant")
+
+    val context = createApplicationContext()
 
     // Basic dependencies, repositories and services
 
@@ -42,7 +55,7 @@ fun main(args: Array<String>) {
     val configurationLoader = ConfigurationLoader()
     val userInterface = UserInterface()
     val trackerSerializer = Serializer()
-    val trackerRepository = tech.skagedal.assistant.tracker.Repository(
+    val trackerRepository = TrackerRepository(
         fileSystem,
         trackerSerializer
     )
@@ -74,7 +87,7 @@ fun main(args: Array<String>) {
 
     // Commands
 
-    val nextCommand = Next(
+    val nextCommand = NextCommand(
         fileSystem,
         userInterface,
         repository,
@@ -85,17 +98,13 @@ fun main(args: Array<String>) {
         gitReposTaskFactory
     )
 
-    val trackEditCommand = TrackEdit(
-        trackerRepository,
-        processRunner
-    )
-    val trackReportCommand = TrackReport(timeTracker)
-    val trackStartCommand = TrackStart(timeTracker)
-    val trackStopCommand = TrackStop(timeTracker)
-
-    val gitFetchCommand = GitFetchCommand(fileSystem, gitFetchService)
-    val gitCleanCommand = GitCleanCommand(fileSystem, userInterface)
-    val gitReposCommand = GitReposCommand(fileSystem, gitReposService)
+    val trackEditCommand = context.bean<TrackEditCommand>()
+    val trackReportCommand = context.bean<TrackReportCommand>()
+    val trackStartCommand = context.bean<TrackStartCommand>()
+    val trackStopCommand = context.bean<TrackStopCommand>()
+    val gitFetchCommand = context.bean<GitFetchCommand>()
+    val gitCleanCommand = context.bean<GitCleanCommand>()
+    val gitReposCommand = context.bean<GitReposCommand>()
 
     val simonsAssistant = SimonsAssistant().subcommands(
         nextCommand,
@@ -110,3 +119,4 @@ fun main(args: Array<String>) {
 
     simonsAssistant.main(args)
 }
+
