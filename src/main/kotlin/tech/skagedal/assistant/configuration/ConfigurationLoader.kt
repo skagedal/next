@@ -8,9 +8,11 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.SingletonSupport
 import com.fasterxml.jackson.module.kotlin.readValue
+import org.springframework.stereotype.Component
 import java.io.Reader
 import java.lang.RuntimeException
 
+@Component
 class ConfigurationLoader {
     class BadConfigurationFormat(message: String, cause: Throwable): RuntimeException(message, cause)
 

@@ -1,5 +1,6 @@
 package tech.skagedal.assistant.tasks
 
+import org.springframework.stereotype.Component
 import tech.skagedal.assistant.ProcessRunner
 import tech.skagedal.assistant.RunnableTask
 import tech.skagedal.assistant.desktop
@@ -10,6 +11,7 @@ import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
 
+@Component
 class FileSystemLinterTaskFactory(
     val fileSystem: FileSystem,
     val processRunner: ProcessRunner

@@ -1,5 +1,6 @@
 package tech.skagedal.assistant.tasks
 
+import org.springframework.stereotype.Component
 import tech.skagedal.assistant.ProcessRunner
 import tech.skagedal.assistant.RunnableTask
 import tech.skagedal.assistant.Repository
@@ -8,6 +9,7 @@ import tech.skagedal.assistant.pathWithShellExpansions
 import java.nio.file.FileSystem
 import java.nio.file.Path
 
+@Component
 class IntervalTaskFactory(
     val fileSystem: FileSystem,
     val processRunner: ProcessRunner,
