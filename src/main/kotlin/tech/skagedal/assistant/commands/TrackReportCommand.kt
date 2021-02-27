@@ -2,11 +2,12 @@ package tech.skagedal.assistant.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
 import org.springframework.stereotype.Component
+import tech.skagedal.assistant.ioc.Subcommand
 import tech.skagedal.assistant.tracker.TimeTracker
 import java.time.Duration
 import java.time.LocalDate
 
-@Component
+@Subcommand
 class TrackReportCommand(
     private val timeTracker: TimeTracker
 ) : CliktCommand(name = "track-report") {

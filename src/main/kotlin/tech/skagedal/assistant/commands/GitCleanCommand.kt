@@ -17,11 +17,12 @@ import tech.skagedal.assistant.git.UpstreamStatus.LOCAL_IS_AHEAD_OF_UPSTREAM
 import tech.skagedal.assistant.git.UpstreamStatus.MERGE_NEEDED
 import tech.skagedal.assistant.git.UpstreamStatus.UPSTREAM_IS_AHEAD_OF_LOCAL
 import tech.skagedal.assistant.git.UpstreamStatus.UPSTREAM_IS_GONE
+import tech.skagedal.assistant.ioc.Subcommand
 import tech.skagedal.assistant.ui.UserInterface
 import java.nio.file.FileSystem
 import java.nio.file.Path
 
-@Component
+@Subcommand
 class GitCleanCommand(val fileSystem: FileSystem, val userInterface: UserInterface) : CliktCommand(name = "git-clean") {
     override fun run() {
         val repo = GitRepo(fileSystem.getPath("."))

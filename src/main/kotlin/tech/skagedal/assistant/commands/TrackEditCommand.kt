@@ -3,10 +3,11 @@ package tech.skagedal.assistant.commands
 import com.github.ajalt.clikt.core.CliktCommand
 import org.springframework.stereotype.Component
 import tech.skagedal.assistant.ProcessRunner
+import tech.skagedal.assistant.ioc.Subcommand
 import tech.skagedal.assistant.tracker.TrackerRepository
 import java.time.LocalDate
 
-@Component
+@Subcommand
 class TrackEditCommand(
     val trackerRepository: TrackerRepository,
     val processRunner: ProcessRunner

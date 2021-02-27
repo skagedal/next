@@ -3,6 +3,7 @@ package tech.skagedal.assistant.commands
 import ch.qos.logback.classic.LoggerContext
 import com.github.ajalt.clikt.core.CliktCommand
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import tech.skagedal.assistant.Repository
 import tech.skagedal.assistant.RunnableTask
@@ -10,6 +11,7 @@ import tech.skagedal.assistant.TaskResult
 import tech.skagedal.assistant.configuration.ConfigurationLoader
 import tech.skagedal.assistant.configuration.Task
 import tech.skagedal.assistant.configuration.TasksFile
+import tech.skagedal.assistant.ioc.Subcommand
 import tech.skagedal.assistant.tasks.EstablishWorkOrHobbyTask
 import tech.skagedal.assistant.tasks.FileSystemLinterTaskFactory
 import tech.skagedal.assistant.tasks.GitReposTaskFactory
@@ -25,7 +27,7 @@ private const val EXIT_NORMAL = 0
 private const val EXIT_ERROR = 1
 private const val CHANGE_DIRECTORY = 10
 
-@Component
+@Subcommand
 class NextCommand(
     val fileSystem: FileSystem,
     val userInterface: UserInterface,
@@ -39,6 +41,7 @@ class NextCommand(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     override fun run() {
+        logger.info("Running next command")
         val exitResult = runCommand()
         logger.info("next command completed, exiting with code {}", exitResult)
         (LoggerFactory.getILoggerFactory() as LoggerContext).executorService.shutdown()

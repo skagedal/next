@@ -31,7 +31,7 @@ dependencies {
     implementation("com.github.ajalt", "clikt", "2.4.0")
     implementation("de.codeshelf.consoleui", "consoleui", "0.0.13")
     implementation("org.springframework", "spring-context", Versions.spring)
-
+    implementation("javax.annotation", "javax.annotation-api", "1.3.2")
 
     testImplementation("org.jetbrains.kotlin", "kotlin-test")
     testImplementation("org.jetbrains.kotlin", "kotlin-test-junit5")
