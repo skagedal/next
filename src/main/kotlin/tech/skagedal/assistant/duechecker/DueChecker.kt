@@ -7,7 +7,7 @@ import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
 class DueChecker {
-    fun check(instantWhenDone: Instant?, instantNow: Instant, whenExpression: WhenExpression) =
+    fun check(whenExpression: WhenExpression, instantWhenDone: Instant?, instantNow: Instant) =
         if (instantWhenDone == null) {
             Due(true, "it has never been done before")
         } else when(whenExpression) {

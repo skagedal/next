@@ -19,7 +19,7 @@ class IntervalTask(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     override fun runTask(): TaskResult {
-        val due = dueChecker.check(repository.whenDidWeLastDo(taskIdentifier), Instant.now(), whenExpression)
+        val due = dueChecker.check(whenExpression, repository.whenDidWeLastDo(taskIdentifier), Instant.now())
         if (due.isDue) {
             logger.info("Performing $taskIdentifier")
             logger.debug("Performing $taskIdentifier, because ${due.reason}.")
