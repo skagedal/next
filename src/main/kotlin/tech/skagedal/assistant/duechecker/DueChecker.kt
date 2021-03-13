@@ -14,8 +14,8 @@ class DueChecker {
             WhenExpression.Never -> Due(false, "it should never be done")
             WhenExpression.Always -> Due(true, "it should always be done")
             is WhenExpression.EveryNDays -> {
-                val then = LocalDateTime.ofInstant(instantWhenDone, ZoneOffset.UTC)
-                val now = LocalDateTime.ofInstant(instantNow, ZoneOffset.UTC)
+                val then = LocalDateTime.ofInstant(instantWhenDone, ZoneOffset.UTC).toLocalDate()
+                val now = LocalDateTime.ofInstant(instantNow, ZoneOffset.UTC).toLocalDate()
                 val diff = then.until(now, ChronoUnit.DAYS)
                 if (diff >= whenExpression.n) {
                     Due(true, "${whenExpression.n} or more days have passed")
