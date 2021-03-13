@@ -6,20 +6,22 @@ import tech.skagedal.assistant.RunnableTask
 import tech.skagedal.assistant.Repository
 import tech.skagedal.assistant.configuration.WhenExpression
 import tech.skagedal.assistant.pathWithShellExpansions
+import tech.skagedal.assistant.duechecker.DueChecker
 import java.nio.file.FileSystem
-import java.nio.file.Path
 
 @Component
 class IntervalTaskFactory(
     val fileSystem: FileSystem,
     val processRunner: ProcessRunner,
-    val repository: Repository
+    val repository: Repository,
+    val dueChecker: DueChecker
 ) {
     fun brewUpgradeTask(whenExpression: WhenExpression): RunnableTask {
         return IntervalTask(
             repository,
             whenExpression,
             "brew-upgrade",
+            dueChecker,
             ::doBrewUpgrade
         )
     }
@@ -29,10 +31,10 @@ class IntervalTaskFactory(
             repository,
             whenExpression,
             taskIdentifier,
-            {
-                processRunner.runShellCommand(shellCommand, directory?.let { fileSystem.pathWithShellExpansions(it) })
-            }
-        )
+            dueChecker
+        ) {
+            processRunner.runShellCommand(shellCommand, directory?.let { fileSystem.pathWithShellExpansions(it) })
+        }
     }
 
     private fun doBrewUpgrade() {
