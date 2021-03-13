@@ -8,7 +8,7 @@ import java.time.ZoneOffset
 
 internal class DueCheckerTest {
     private val dueChecker = DueChecker()
-    
+
     @Test
     internal fun daily_means_the_next_day() {
         val someDay = LocalDate.of(2007, 10, 3)

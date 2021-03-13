@@ -1,11 +1,13 @@
 package tech.skagedal.assistant.duechecker
 
+import org.springframework.stereotype.Component
 import tech.skagedal.assistant.configuration.WhenExpression
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
+@Component
 class DueChecker {
     fun check(whenExpression: WhenExpression, instantWhenDone: Instant?, instantNow: Instant) =
         if (instantWhenDone == null) {
