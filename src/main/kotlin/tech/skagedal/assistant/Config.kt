@@ -8,7 +8,7 @@ import java.nio.file.FileSystems
 
 @Configuration
 open class Config {
-    @Bean
+    @Bean(destroyMethod = "")
     open fun fileSystem(): FileSystem = FileSystems.getDefault()
 
     @Bean
