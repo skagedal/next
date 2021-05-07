@@ -73,11 +73,11 @@ class GitReposService(private val fileSystem: FileSystem) {
         val result = it.result
         return when (result) {
             GitResult.Dirty -> {
-                System.err.println("Dirty git repository")
+                System.err.println("Dirty git repository: ${it.path}")
                 TaskResult.ShellActionRequired(it.path)
             }
             GitResult.NotGitRepository -> {
-                System.err.println("Not a git repository")
+                System.err.println("Not a git repository: ${it.path}")
                 TaskResult.ShellActionRequired(it.path)
             }
             GitResult.NotDirectory -> {
