@@ -1,7 +1,6 @@
 package tech.skagedal.assistant.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
-import org.springframework.stereotype.Component
 import tech.skagedal.assistant.TaskResult
 import tech.skagedal.assistant.commands.GitCleanCommand.BranchAction.DELETE
 import tech.skagedal.assistant.commands.GitCleanCommand.BranchAction.LOG

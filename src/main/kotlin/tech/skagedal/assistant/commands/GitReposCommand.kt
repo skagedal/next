@@ -3,7 +3,6 @@ package tech.skagedal.assistant.commands
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.split
-import org.springframework.stereotype.Component
 import tech.skagedal.assistant.Repository
 import tech.skagedal.assistant.TaskResult
 import tech.skagedal.assistant.ioc.Subcommand
