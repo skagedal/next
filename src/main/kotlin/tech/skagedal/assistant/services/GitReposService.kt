@@ -4,7 +4,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
-import org.springframework.stereotype.Service
 import tech.skagedal.assistant.TaskResult
 import tech.skagedal.assistant.commands.GitCleanCommand
 import tech.skagedal.assistant.general.filesInDirectory
@@ -18,7 +17,6 @@ import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
 
-@Service
 class GitReposService(private val fileSystem: FileSystem) {
     fun handleAllGitRepos(path1: Path) = fetchAllResults(path1)
         .filter { it.result != GitResult.Clean }

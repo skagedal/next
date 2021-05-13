@@ -1,9 +1,12 @@
 package tech.skagedal.assistant
 
 import org.slf4j.LoggerFactory
+import tech.skagedal.assistant.commands.GitCleanCommand
+import tech.skagedal.assistant.commands.GitReposCommand
 import tech.skagedal.assistant.commands.SimonsAssistant
-import tech.skagedal.assistant.ioc.bean
-import tech.skagedal.assistant.ioc.createApplicationContext
+import tech.skagedal.assistant.services.GitReposService
+import tech.skagedal.assistant.ui.UserInterface
+import java.nio.file.FileSystems
 
 private object Main {
     val logger = LoggerFactory.getLogger(javaClass)
@@ -11,9 +14,14 @@ private object Main {
     fun main(args: Array<String>) {
         logger.info("Starting simons-assistant")
 
-        createApplicationContext(Main.javaClass)
-            .bean<SimonsAssistant>()
-            .main(args)
+        val fileSystem = FileSystems.getDefault()
+        val assistant = SimonsAssistant(
+            listOf(
+                GitCleanCommand(fileSystem, UserInterface()),
+                GitReposCommand(fileSystem, GitReposService(fileSystem), Repository(fileSystem))
+            )
+        )
+        assistant.main(args)
     }
 }
 

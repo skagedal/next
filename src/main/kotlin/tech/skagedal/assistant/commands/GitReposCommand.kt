@@ -5,16 +5,13 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.split
 import tech.skagedal.assistant.Repository
 import tech.skagedal.assistant.TaskResult
-import tech.skagedal.assistant.ioc.Subcommand
 import tech.skagedal.assistant.services.GitReposService
 import java.nio.file.FileSystem
 import kotlin.system.exitProcess
 
 private const val EXIT_NORMAL = 0
-private const val EXIT_ERROR = 1
 private const val CHANGE_DIRECTORY = 10
 
-@Subcommand
 class GitReposCommand(
     private val fileSystem: FileSystem,
     private val gitReposService: GitReposService,

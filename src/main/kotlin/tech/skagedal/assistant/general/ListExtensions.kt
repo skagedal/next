@@ -22,7 +22,3 @@ fun <T> List<T>.splitSublists(pivotPredicate: (T) -> Boolean): List<List<T>> =
         emptyList()
     }
 
-fun <T> List<T>.split(predicate: (T) -> Boolean) =
-    segment(predicate.not()).let { (preamble, list) ->
-        listOf(preamble) + list.splitSublists(predicate)
-    }

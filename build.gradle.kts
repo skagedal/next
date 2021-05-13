@@ -20,9 +20,6 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.8")
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-jdk8", "1.3.8")
-    implementation("com.google.api-client", "google-api-client", "1.23.0")
-    implementation("com.google.oauth-client", "google-oauth-client-jetty", "1.23.0")
-    implementation("com.google.apis", "google-api-services-gmail", "v1-rev83-1.23.0")
     implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", Versions.jackson)
     implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-yaml", Versions.jackson)
     implementation("com.fasterxml.jackson.core", "jackson-databind", Versions.jackson)
@@ -30,8 +27,6 @@ dependencies {
     implementation("ch.qos.logback", "logback-classic", "1.2.3")
     implementation("com.github.ajalt", "clikt", "2.4.0")
     implementation("de.codeshelf.consoleui", "consoleui", "0.0.13")
-    implementation("org.springframework", "spring-context", Versions.spring)
-    implementation("javax.annotation", "javax.annotation-api", "1.3.2")
 
     testImplementation("org.jetbrains.kotlin", "kotlin-test")
     testImplementation("org.jetbrains.kotlin", "kotlin-test-junit5")
