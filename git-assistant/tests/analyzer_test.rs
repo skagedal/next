@@ -20,7 +20,7 @@ fn has_no_upstream() {
 #[test]
 fn identical_to_upstream() {
     let tmpdir = TempDir::default();
-    let result = analyze_repository(unpack_fixture("simple-repo", &tmpdir));
+    let result = analyze_repository(unpack_fixture("identical-to-upstream", &tmpdir));
     assert_eq!(Analysis::IdenticalToUpstream, result.unwrap());
 }
 
