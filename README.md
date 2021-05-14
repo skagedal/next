@@ -8,8 +8,3 @@ The `simons-assistant git-clean` command cleans up branches in the git repositor
 
 For each local branch, it compares to upstream and gives you a selection of options depending on current state.
 
-Compare it to the "clean-up" action I do in another script I have:
-
-```shell
-git branch -r | awk '{print $1}' | egrep -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk '{print $1}' | xargs git branch -d
-```
